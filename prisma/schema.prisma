@@ -12,6 +12,38 @@ datasource db {
   relationMode = "prisma"
 }
 
+enum ExperinceLevel {
+  EXPERT
+  INTERMEDIATE
+  Entry_LEVEL
+}
+
+enum PaymentTransactionType {
+  WITHDRAWAL
+  DEPOSIT
+  SERVICE_FEE
+  FIXED_PRICE
+}
+
+enum JobCategory {
+  WEB_DEVOLPMENT
+}
+
+enum Visability {
+  PUBLIC
+  PRIVATE
+  PROTECTED
+}
+
+enum PaymentType {
+  FIXED_PRICE
+}
+
+enum ProjectType {
+  ONE_TIME
+  ONGOING
+}
+
 model Account {
   id       String @id @default(uuid())
   userName String @unique
@@ -21,17 +53,21 @@ model Account {
 }
 
 model User {
-  id             String      @id @default(uuid())
+  id             String           @id @default(uuid())
   firstName      String
   lastName       String
   bio            String?
   profilePicture String?
   jwtToken       String?
   timeZone       DateTime
-  accountId      String      @unique
-  account        Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  Freelancer     Freelancer?
-  Client         Client?
+  accountId      String           @unique
+  account        Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  freelancer     Freelancer?
+  client         Client?
+  creditCards    CreditCardInfo[]
+
+  senderPaymentTransaction   PaymentTransaction[] @relation("TransactionFromUser")
+  receiverPaymentTransaction PaymentTransaction[] @relation("TransactionToUser")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -40,36 +76,29 @@ model User {
 }
 
 model Freelancer {
-  id                 String               @id @default(uuid())
-  userId             String               @unique
-  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  FreelancerSkill    FreelancerSkill[]
-  PaymentTransaction PaymentTransaction[]
-
-  @@index([userId])
+  id               String            @id @unique
+  user             User              @relation(fields: [id], references: [id], onDelete: Cascade)
+  freelancerSkills FreelancerSkill[]
+  jobTitle         String
+  jobCategory      JobCategory
+  experinceLevel   ExperinceLevel
+  jobInvitations   JobInvitation[]
+  proposals        Proposal[]
 }
 
 model Client {
-  id                 String               @id @default(uuid())
-  userId             String               @unique
-  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  PaymentTransaction PaymentTransaction[]
-
-  @@index([userId])
-}
-
-enum SkillLevel {
-  ADVANCED
-  INTERMEDIATE
-  BEGGNIER
+  id   String @id @unique
+  user User   @relation(fields: [id], references: [id], onDelete: Cascade)
+  jobs Job[]
 }
 
 model Skill {
-  id    String     @id @default(uuid())
+  id    String         @id @default(uuid())
   name  String
-  level SkillLevel
+  level ExperinceLevel
 
-  FreelancerSkill FreelancerSkill[]
+  jobSkills        JobSkill[]
+  freelancerSkills FreelancerSkill[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -86,13 +115,6 @@ model FreelancerSkill {
   @@index([freelancerId, skillId])
 }
 
-enum PaymentTransactionType {
-  WITHDRAWAL
-  DEPOSIT
-  SERVICE_FEE
-  FIXED_PRICE
-}
-
 model PaymentTransaction {
   id          String                 @id @default(uuid())
   date        DateTime               @default(now())
@@ -100,23 +122,97 @@ model PaymentTransaction {
   amount      Float
   type        PaymentTransactionType
 
-  clientId String?
-  client   Client? @relation(fields: [clientId], references: [id], onDelete: NoAction)
+  senderId String?
+  sender   User?   @relation("TransactionFromUser", fields: [senderId], references: [id], onDelete: NoAction)
 
-  freelancerId String?
-  freelancer   Freelancer? @relation(fields: [freelancerId], references: [id], onDelete: NoAction)
+  receiverId String?
+  receiver   User?   @relation("TransactionToUser", fields: [receiverId], references: [id], onDelete: NoAction)
 
-  @@index([clientId, freelancerId])
+  @@index([senderId, receiverId])
 }
 
 model CreditCardInfo {
-  id             String   @default(uuid())
-  cardNumber     String
+  cardNumber     String   @id
   holderName     String
   expiryMonth    DateTime
   expiryYear     DateTime
   billingAddress String
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([id, cardNumber])
-  @@unique([holderName, expiryMonth, expiryYear, billingAddress])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Job {
+  id                     String         @id @default(uuid())
+  title                  String
+  category               JobCategory
+  visability             Visability     @default(PUBLIC)
+  location               String
+  description            String         @db.LongText
+  paymentType            PaymentType
+  projectType            ProjectType
+  projectPrice           Float
+  projectLength          String
+  link                   String
+  requiredSkills         JobSkill[]
+  requiredExperinceLevel ExperinceLevel
+
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  postedAt     DateTime?
+  lastViewedAt DateTime?
+
+  jobInvitations JobInvitation[]
+  Proposals      Proposal[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+}
+
+model Proposal {
+  id            String @default(uuid())
+  bid           Float
+  projectLength String
+  attachments   String
+  coverLetter   String @db.LongText
+
+  freelancerId String
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
+
+  jobId String
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([id, freelancerId, jobId])
+  @@index([freelancerId, jobId])
+}
+
+model JobSkill {
+  jobId   String
+  job     Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([jobId, skillId])
+  @@index([jobId, skillId])
+}
+
+model JobInvitation {
+  jobId        String
+  job          Job        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  freelancerId String
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
+  accepted     Boolean    @default(false)
+
+  @@id([jobId, freelancerId])
+  @@index([jobId, freelancerId])
 }
