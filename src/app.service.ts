@@ -5,18 +5,18 @@ import { Prisma, Freelancer } from '@prisma/client';
 export class AppService {
   constructor(private prisma: PrismaService) {}
 
-  async freelancers(): Promise<Freelancer[]> {
-    return this.prisma.freelancer.findMany();
-  }
+  // async freelancers(): Promise<Freelancer[]> {
+  //   return this.prisma.freelancer.findMany();
+  // }
 
-  async createFreelancer(
-    data: Prisma.FreelancerCreateInput,
-  ): Promise<Freelancer> {
-    return this.prisma.freelancer.create({ data });
-  }
+  // async createFreelancer(
+  //   data: Prisma.FreelancerCreateInput,
+  // ): Promise<Freelancer> {
+  //   return this.prisma.freelancer.create({ data });
+  // }
 
-  async deleteFreelancers(): Promise<number> {
-    const { count } = await this.prisma.freelancer.deleteMany();
-    return count;
-  }
+  // async deleteFreelancers(): Promise<number> {
+  //   const { count } = await this.prisma.freelancer.deleteMany();
+  //   return count;
+  // }
 }

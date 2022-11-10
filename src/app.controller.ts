@@ -7,21 +7,21 @@ import { Body, Delete, Post } from '@nestjs/common/decorators';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  async getFreelancers(): Promise<FreelancerModel[]> {
-    return this.appService.freelancers();
-  }
+  // @Get()
+  // async getFreelancers(): Promise<FreelancerModel[]> {
+  //   return this.appService.freelancers();
+  // }
 
-  @Post()
-  async createFreelancer(
-    @Body() freelancerData: FreelancerModel,
-  ): Promise<FreelancerModel> {
-    console.log(freelancerData);
-    return this.appService.createFreelancer(freelancerData);
-  }
+  // @Post()
+  // async createFreelancer(
+  //   @Body() freelancerData: FreelancerModel,
+  // ): Promise<FreelancerModel> {
+  //   console.log(freelancerData);
+  //   return this.appService.createFreelancer(freelancerData);
+  // }
 
-  @Delete()
-  async deleteFreelancer(): Promise<number> {
-    return this.appService.deleteFreelancers();
-  }
+  // @Delete()
+  // async deleteFreelancer(): Promise<number> {
+  //   return this.appService.deleteFreelancers();
+  // }
 }
