@@ -11,3 +11,112 @@ datasource db {
   url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
+
+model Account {
+  id       String @id @default(uuid())
+  userName String @unique
+  email    String @unique
+  password String
+  user     User?
+}
+
+model User {
+  id             String      @id @default(uuid())
+  firstName      String
+  lastName       String
+  bio            String?
+  profilePicture String?
+  jwtToken       String?
+  timeZone       DateTime
+  accountId      String      @unique
+  account        Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  Freelancer     Freelancer?
+  Client         Client?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([accountId])
+}
+
+model Freelancer {
+  id                 String               @id @default(uuid())
+  userId             String               @unique
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  FreelancerSkill    FreelancerSkill[]
+  PaymentTransaction PaymentTransaction[]
+
+  @@index([userId])
+}
+
+model Client {
+  id                 String               @id @default(uuid())
+  userId             String               @unique
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  PaymentTransaction PaymentTransaction[]
+
+  @@index([userId])
+}
+
+enum SkillLevel {
+  ADVANCED
+  INTERMEDIATE
+  BEGGNIER
+}
+
+model Skill {
+  id    String     @id @default(uuid())
+  name  String
+  level SkillLevel
+
+  FreelancerSkill FreelancerSkill[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FreelancerSkill {
+  freelancerId String
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
+
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([freelancerId, skillId])
+  @@index([freelancerId, skillId])
+}
+
+enum PaymentTransactionType {
+  WITHDRAWAL
+  DEPOSIT
+  SERVICE_FEE
+  FIXED_PRICE
+}
+
+model PaymentTransaction {
+  id          String                 @id @default(uuid())
+  date        DateTime               @default(now())
+  description String
+  amount      Float
+  type        PaymentTransactionType
+
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: NoAction)
+
+  freelancerId String?
+  freelancer   Freelancer? @relation(fields: [freelancerId], references: [id], onDelete: NoAction)
+
+  @@index([clientId, freelancerId])
+}
+
+model CreditCardInfo {
+  id             String   @default(uuid())
+  cardNumber     String
+  holderName     String
+  expiryMonth    DateTime
+  expiryYear     DateTime
+  billingAddress Json
+
+  @@id([id, cardNumber])
+  @@unique([holderName, expiryMonth, expiryYear, billingAddress])
+}
