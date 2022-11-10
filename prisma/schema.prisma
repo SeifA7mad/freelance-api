@@ -115,7 +115,7 @@ model CreditCardInfo {
   holderName     String
   expiryMonth    DateTime
   expiryYear     DateTime
-  billingAddress Json
+  billingAddress String
 
   @@id([id, cardNumber])
   @@unique([holderName, expiryMonth, expiryYear, billingAddress])
