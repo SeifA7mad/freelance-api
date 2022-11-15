@@ -42,7 +42,15 @@ export class ClientsService {
   }
 
   findAll() {
-    return `This action returns all clients`;
+    return this.prisma.client.findMany({
+      include: {
+        user: {
+          include: {
+            account: true,
+          },
+        },
+      },
+    });
   }
 
   findOne(id: number) {

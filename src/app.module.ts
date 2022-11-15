@@ -11,6 +11,7 @@ import { UsersModule } from './module/users/users.module';
 import { AccountsModule } from './module/accounts/accounts.module';
 import { FreelancersModule } from './module/freelancers/freelancers.module';
 import { ClientsModule } from './module/clients/clients.module';
+import { AuthModule } from './module/auth/auth.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ClientsModule } from './module/clients/clients.module';
     AccountsModule,
     FreelancersModule,
     ClientsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
