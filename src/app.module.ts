@@ -10,6 +10,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './module/users/users.module';
 import { AccountsModule } from './module/accounts/accounts.module';
 import { FreelancersModule } from './module/freelancers/freelancers.module';
+import { ClientsModule } from './module/clients/clients.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { FreelancersModule } from './module/freelancers/freelancers.module';
     UsersModule,
     AccountsModule,
     FreelancersModule,
+    ClientsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -21,7 +21,9 @@ export class CreateFreelancerDto implements CreateFreelancerType {
   readonly experienceLevel: ExperienceLevel;
   readonly firstName: string;
   readonly lastName: string;
+  @ApiProperty({ required: false })
   readonly bio: string;
+  @ApiProperty({ required: false })
   readonly profilePicture: string;
   readonly timeZone: Date;
   readonly userName: string;

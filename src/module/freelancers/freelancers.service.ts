@@ -11,50 +11,38 @@ export class FreelancersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createFreelancerDto: CreateFreelancerDto) {
-    try {
-      const hashedPassword = await hash(createFreelancerDto.password, 12);
-      const newCreatedUser = await this.prisma.freelancer.create({
-        data: {
-          jobTitle: createFreelancerDto.jobTitle,
-          jobCategory: createFreelancerDto.jobCategory,
-          experienceLevel: createFreelancerDto.experienceLevel,
-          user: {
-            create: {
-              firstName: createFreelancerDto.firstName,
-              lastName: createFreelancerDto.lastName,
-              timeZone: createFreelancerDto.timeZone,
-              bio: createFreelancerDto.bio,
-              profilePicture: createFreelancerDto.profilePicture,
-              account: {
-                create: {
-                  email: createFreelancerDto.email,
-                  password: hashedPassword,
-                  userName: createFreelancerDto.userName,
-                },
+    const hashedPassword = await hash(createFreelancerDto.password, 12);
+    return this.prisma.freelancer.create({
+      data: {
+        jobTitle: createFreelancerDto.jobTitle,
+        jobCategory: createFreelancerDto.jobCategory,
+        experienceLevel: createFreelancerDto.experienceLevel,
+        user: {
+          create: {
+            firstName: createFreelancerDto.firstName,
+            lastName: createFreelancerDto.lastName,
+            timeZone: createFreelancerDto.timeZone,
+            bio: createFreelancerDto.bio,
+            profilePicture: createFreelancerDto.profilePicture,
+            client: undefined,
+            account: {
+              create: {
+                email: createFreelancerDto.email,
+                password: hashedPassword,
+                userName: createFreelancerDto.userName,
               },
             },
           },
         },
-        include: {
-          user: {
-            include: {
-              account: true,
-            },
+      },
+      include: {
+        user: {
+          include: {
+            account: true,
           },
         },
-      });
-
-      return newCreatedUser;
-    } catch (err) {
-      if (err instanceof Prisma.PrismaClientKnownRequestError) {
-        // The .code property can be accessed in a type-safe manner
-        if (err.code === 'P2002') {
-          throw new ConflictException(
-            'There is a unique constraint violation, a new user cannot be created with this email',
-          );
-        }
-      }
-    }
+      },
+    });
   }
 
   async findAll() {
