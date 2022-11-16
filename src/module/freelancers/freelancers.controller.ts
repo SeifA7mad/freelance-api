@@ -17,8 +17,7 @@ import { UpdateFreelancerDto } from './dto/update-freelancer.dto';
 import { CreateFreelancerSchema } from './validation/create-freelancer';
 
 import { ApiTags } from '@nestjs/swagger';
-import { UserAuthGuard } from 'src/guard/user-auth-guard';
-import { FreelancerAuthGuard } from 'src/guard/freelancer-auth-guard';
+import { FreelancerAuthGuard } from 'src/guard/freelancer-auth.guard';
 
 @ApiTags('Freelancer')
 @Controller('freelancers')

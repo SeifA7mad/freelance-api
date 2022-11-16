@@ -57,11 +57,12 @@ enum MillestoneStatus {
 }
 
 model Account {
-  id       String @id @default(uuid())
-  userName String @unique
-  email    String @unique
-  password String
-  user     User?
+  id           String  @id @default(uuid())
+  userName     String  @unique
+  email        String  @unique
+  password     String
+  refreshToken String?
+  user         User?
 }
 
 model User {

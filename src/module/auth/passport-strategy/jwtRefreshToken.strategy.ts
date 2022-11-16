@@ -3,17 +3,22 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserJwtPayload } from '../dto/user-jwt-payload.interface';
+import { Request } from 'express';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtRefreshTokenStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(private prisma: PrismaService) {
     super({
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: process.env.JWT_REFRESH_SECRET,
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: UserJwtPayload) {
+  async validate(req: Request, payload: UserJwtPayload) {
     const { userId, username, email } = payload;
     const user = await this.prisma.user.findUnique({
       where: {
@@ -26,10 +31,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       },
     });
 
-    if (!user) {
+    if (!user || !user.account.refreshToken) {
       throw new UnauthorizedException();
     }
 
-    return user;
+    const refreshToken = req.get('Authorization').replace('Bearer', '').trim();
+
+    return { ...user, refreshToken };
   }
 }
