@@ -58,15 +58,34 @@ export class FreelancersService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} freelancer`;
+  findOne(id: string) {
+    return this.prisma.freelancer.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        freelancerSkills: {
+          include: {
+            skill: true,
+          },
+        },
+        contracts: true,
+        proposals: true,
+        jobInvitations: true,
+      },
+    });
   }
 
-  update(id: number, updateFreelancerDto: UpdateFreelancerDto) {
-    return `This action updates a #${id} freelancer`;
+  update(id: string, updateFreelancerDto: UpdateFreelancerDto) {
+    return this.prisma.freelancer.update({
+      where: {
+        id: id,
+      },
+      data: {},
+    });
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} freelancer`;
   }
 }

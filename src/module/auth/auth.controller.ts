@@ -6,7 +6,7 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
 import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
@@ -30,12 +30,21 @@ export class AuthController {
     return this.authService.login(authCredentialsDto);
   }
 
+  @ApiBearerAuth()
   @Post('logout')
   @UseGuards(UserAuthGuard)
   logout(@Req() req: JwtUserRequest) {
     return this.authService.logout(req.user.id);
   }
 
+  @ApiBearerAuth()
+  @Get('profile')
+  @UseGuards(UserAuthGuard)
+  getProfile(@Req() req: JwtUserRequest) {
+    return this.authService.getProfile(req.user.id);
+  }
+
+  @ApiBearerAuth()
   @Get('refresh')
   @UseGuards(RefreshTokenGuard)
   refreshToken(@Req() req: JwtRefreshTokenUserRequest) {

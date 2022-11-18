@@ -7,9 +7,16 @@ import {
   Param,
   Delete,
   UsePipes,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AdminAuthGuard } from 'src/guard/admin-auth.guard';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
+import {
+  ManagePrivilege,
+  ReadPrivilege,
+  WritePrivilege,
+} from 'src/util/constants';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
@@ -26,23 +33,31 @@ export class ClientsController {
     return this.clientsService.create(createClientDto);
   }
 
-  @Get()
+  @Get('admin')
+  @ApiBearerAuth()
+  @UseGuards(new AdminAuthGuard(ReadPrivilege))
   findAll() {
     return this.clientsService.findAll();
   }
 
-  @Get(':id')
+  @Get('admin/:id')
+  @ApiBearerAuth()
+  @UseGuards(new AdminAuthGuard(ReadPrivilege))
   findOne(@Param('id') id: string) {
-    return this.clientsService.findOne(+id);
+    return this.clientsService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch('admin/:id')
+  @ApiBearerAuth()
+  @UseGuards(new AdminAuthGuard(WritePrivilege))
   update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
-    return this.clientsService.update(+id, updateClientDto);
+    return this.clientsService.update(id, updateClientDto);
   }
 
-  @Delete(':id')
+  @Delete('admin/:id')
+  @ApiBearerAuth()
+  @UseGuards(new AdminAuthGuard(ManagePrivilege))
   remove(@Param('id') id: string) {
-    return this.clientsService.remove(+id);
+    return this.clientsService.remove(id);
   }
 }

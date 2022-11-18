@@ -49,14 +49,14 @@ model Freelancer {
   freelancerSkills FreelancerSkill[]
   proposals        Proposal[]
   jobInvitations   JobInvitation[]
-  contarcts        Contarct[]
+  contracts        Contract[]
 }
 
 model Client {
   id        String     @id @unique
   user      User       @relation(fields: [id], references: [id], onDelete: Cascade)
   jobs      Job[]
-  contarcts Contarct[]
+  contracts Contract[]
 }
 
 model Admin {
@@ -139,7 +139,7 @@ model Project {
   price       Float
   length      String
   job         Job?
-  contract    Contarct?
+  contract    Contract?
 }
 
 model Job {
@@ -159,7 +159,7 @@ model Job {
   Proposals              Proposal[]
   requiredSkills         JobSkill[]
   jobInvitations         JobInvitation[]
-  Contarct               Contarct?
+  contract               Contract?
 
   @@index([clientId, projectId])
 }
@@ -213,37 +213,37 @@ model JobInvitation {
   @@index([jobId, freelancerId])
 }
 
-model ContarctAttachments {
+model ContractAttachments {
   id         String   @id @default(uuid())
   url        String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  contarctId String
-  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
-  @@index([contarctId])
+  @@index([contractId])
 }
 
-model ContarctActivities {
+model ContractActivities {
   id         String   @id @default(uuid())
   activity   String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  contarctId String
-  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
-  @@index([contarctId])
+  @@index([contractId])
 }
 
-model ContarctFeedback {
+model ContractFeedback {
   id         String   @id @default(uuid())
   feedback   String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  contarctId String
-  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
-  @@index([contarctId])
+  @@index([contractId])
 }
 
 model Millestone {
@@ -253,33 +253,36 @@ model Millestone {
   dueDate     DateTime?
   description String?          @db.LongText
   status      MillestoneStatus @default(PENDING)
-  contarctId  String
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  contarct    Contarct         @relation(fields: [contarctId], references: [id], onDelete: Cascade)
+  contractId  String
+  contract    Contract         @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
-  @@index([contarctId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([contractId])
 }
 
 model ChatMessage {
-  id         String   @id @default(uuid())
+  id         String  @id @default(uuid())
   text       String
   attachment String?
-  userId     String
-  contarctId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  user       User     @relation(fields: [userId], references: [id])
-  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
 
-  @@index([contarctId, userId])
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  contractId String
+  contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([contractId, userId])
 }
 
-model Contarct {
+model Contract {
   id              String                @id @default(uuid())
   startDate       DateTime              @default(now())
   endDate         DateTime?
-  status          ContarctStatus        @default(ACTIVE)
+  status          ContractStatus        @default(ACTIVE)
   link            String
   fundedPayment   Float
   receivedPayment Float
@@ -293,9 +296,9 @@ model Contarct {
   job             Job?                  @relation(fields: [jobId], references: [id])
   freelancer      Freelancer?           @relation(fields: [freelancerId], references: [id])
   client          Client                @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  attachments     ContarctAttachments[]
-  activities      ContarctActivities[]
-  feedbacks       ContarctFeedback[]
+  attachments     ContractAttachments[]
+  activities      ContractActivities[]
+  feedbacks       ContractFeedback[]
   millestones     Millestone[]
   chatMessages    ChatMessage[]
 
@@ -334,7 +337,7 @@ enum ProjectType {
   ONGOING
 }
 
-enum ContarctStatus {
+enum ContractStatus {
   COMPLETED
   ACTIVE
 }

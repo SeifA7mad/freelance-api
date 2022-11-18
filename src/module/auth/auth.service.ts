@@ -69,6 +69,39 @@ export class AuthService {
     });
   }
 
+  async getProfile(userId: string) {
+    const includesFreelancer = {
+      include: {
+        freelancerSkills: {
+          include: {
+            skill: true,
+          },
+        },
+      },
+    };
+    const includesAdmin = {
+      include: {
+        privileges: {
+          include: {
+            Privilege: true,
+          },
+        },
+      },
+    };
+
+    return this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        creditCards: true,
+        freelancer: includesFreelancer,
+        client: true,
+        admin: includesAdmin,
+      },
+    });
+  }
+
   private async updateRefreshToken(userId: string, refreshToken: string) {
     const hashedRefreshToken = await hash(refreshToken, 12);
     return this.prisma.user.update({

@@ -22,7 +22,7 @@ export class AdminAuthGuard extends AuthGuard('jwt') {
     const adminPrivileges = user.admin.privileges.map(
       ({ Privilege }) => Privilege.name,
     );
-    console.log(adminPrivileges);
+
     if (
       !this.requiredPrivileges.every((privilege) =>
         adminPrivileges.includes(privilege),
