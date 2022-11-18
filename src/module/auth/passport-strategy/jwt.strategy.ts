@@ -23,6 +23,15 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         account: true,
         freelancer: true,
         client: true,
+        admin: {
+          include: {
+            privileges: {
+              include: {
+                Privilege: true,
+              },
+            },
+          },
+        },
       },
     });
 

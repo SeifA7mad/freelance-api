@@ -11,6 +11,7 @@ export class UsersService {
         account: true,
         freelancer: true,
         client: true,
+        admin: true,
       },
     });
   }

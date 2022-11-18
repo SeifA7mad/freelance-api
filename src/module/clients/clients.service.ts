@@ -21,6 +21,7 @@ export class ClientsService {
             bio: createClientDto.bio,
             profilePicture: createClientDto.profilePicture,
             freelancer: undefined,
+            admin: undefined,
             account: {
               create: {
                 email: createClientDto.email,

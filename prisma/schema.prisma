@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["referentialIntegrity"]
@@ -10,6 +7,299 @@ datasource db {
   provider     = "mysql"
   url          = env("DATABASE_URL")
   relationMode = "prisma"
+}
+
+model Account {
+  id           String  @id @default(uuid())
+  userName     String  @unique
+  email        String  @unique
+  password     String
+  refreshToken String?
+  user         User?
+}
+
+model User {
+  id                         String               @id @default(uuid())
+  firstName                  String
+  lastName                   String
+  bio                        String?
+  profilePicture             String?
+  timeZone                   DateTime
+  createdAt                  DateTime             @default(now())
+  updatedAt                  DateTime             @updatedAt
+  accountId                  String               @unique
+  account                    Account              @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  freelancer                 Freelancer?
+  client                     Client?
+  admin                      Admin?
+  senderPaymentTransaction   PaymentTransaction[] @relation("TransactionFromUser")
+  receiverPaymentTransaction PaymentTransaction[] @relation("TransactionToUser")
+  creditCards                CreditCardInfo[]
+  chatMessages               ChatMessage[]
+
+  @@index([accountId])
+}
+
+model Freelancer {
+  id               String            @id @unique
+  jobTitle         String
+  jobCategory      JobCategory
+  experienceLevel  ExperienceLevel
+  user             User              @relation(fields: [id], references: [id], onDelete: Cascade)
+  freelancerSkills FreelancerSkill[]
+  proposals        Proposal[]
+  jobInvitations   JobInvitation[]
+  contarcts        Contarct[]
+}
+
+model Client {
+  id        String     @id @unique
+  user      User       @relation(fields: [id], references: [id], onDelete: Cascade)
+  jobs      Job[]
+  contarcts Contarct[]
+}
+
+model Admin {
+  id         String           @id @unique
+  user       User             @relation(fields: [id], references: [id], onDelete: Cascade)
+  privileges AdminPrivilege[]
+}
+
+model Privilege {
+  id         String           @id @default(uuid())
+  name       PrivilegeType
+  privileges AdminPrivilege[]
+}
+
+model AdminPrivilege {
+  adminId     String
+  privilegeId String
+  Admin       Admin     @relation(fields: [adminId], references: [id])
+  Privilege   Privilege @relation(fields: [privilegeId], references: [id])
+
+  @@id([adminId, privilegeId])
+  @@index([adminId, privilegeId])
+}
+
+model Skill {
+  id               String            @id @default(uuid())
+  name             String
+  level            ExperienceLevel
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  freelancerSkills FreelancerSkill[]
+  jobSkills        JobSkill[]
+}
+
+model FreelancerSkill {
+  freelancerId String
+  skillId      String
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
+  skill        Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([freelancerId, skillId])
+  @@index([freelancerId, skillId])
+}
+
+model PaymentTransaction {
+  id          String                 @id @default(uuid())
+  date        DateTime               @default(now())
+  description String
+  amount      Float
+  type        PaymentTransactionType
+  senderId    String?
+  receiverId  String?
+  sender      User?                  @relation("TransactionFromUser", fields: [senderId], references: [id], onDelete: NoAction)
+  receiver    User?                  @relation("TransactionToUser", fields: [receiverId], references: [id], onDelete: NoAction)
+
+  @@index([senderId, receiverId])
+}
+
+model CreditCardInfo {
+  cardNumber     String   @id
+  holderName     String
+  expiryMonth    DateTime
+  expiryYear     DateTime
+  billingAddress String
+  userId         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Project {
+  id          String      @id @default(uuid())
+  title       String
+  category    JobCategory
+  description String      @db.LongText
+  paymentType PaymentType
+  type        ProjectType
+  price       Float
+  length      String
+  job         Job?
+  contract    Contarct?
+}
+
+model Job {
+  id                     String          @id @default(uuid())
+  visability             Visability      @default(PUBLIC)
+  location               String
+  link                   String
+  requiredExperinceLevel ExperienceLevel
+  projectId              String          @unique
+  clientId               String
+  postedAt               DateTime?
+  lastViewedAt           DateTime?
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+  project                Project         @relation(fields: [projectId], references: [id])
+  client                 Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Proposals              Proposal[]
+  requiredSkills         JobSkill[]
+  jobInvitations         JobInvitation[]
+  Contarct               Contarct?
+
+  @@index([clientId, projectId])
+}
+
+model ProposalAttachments {
+  id         String   @id @default(uuid())
+  url        String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  proposalId String
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@index([proposalId])
+}
+
+model Proposal {
+  id            String                @id @default(uuid())
+  bid           Float
+  projectLength String
+  coverLetter   String                @db.LongText
+  freelancerId  String
+  jobId         String
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  freelancer    Freelancer            @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
+  job           Job                   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  attachments   ProposalAttachments[]
+
+  @@unique([freelancerId, jobId])
+  @@index([freelancerId, jobId])
+}
+
+model JobSkill {
+  jobId   String
+  skillId String
+  job     Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([jobId, skillId])
+  @@index([jobId, skillId])
+}
+
+model JobInvitation {
+  jobId        String
+  freelancerId String
+  accepted     Boolean    @default(false)
+  job          Job        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
+
+  @@id([jobId, freelancerId])
+  @@index([jobId, freelancerId])
+}
+
+model ContarctAttachments {
+  id         String   @id @default(uuid())
+  url        String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  contarctId String
+  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
+
+  @@index([contarctId])
+}
+
+model ContarctActivities {
+  id         String   @id @default(uuid())
+  activity   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  contarctId String
+  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
+
+  @@index([contarctId])
+}
+
+model ContarctFeedback {
+  id         String   @id @default(uuid())
+  feedback   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  contarctId String
+  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
+
+  @@index([contarctId])
+}
+
+model Millestone {
+  id          String           @id @default(uuid())
+  name        String
+  amount      Float
+  dueDate     DateTime?
+  description String?          @db.LongText
+  status      MillestoneStatus @default(PENDING)
+  contarctId  String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  contarct    Contarct         @relation(fields: [contarctId], references: [id], onDelete: Cascade)
+
+  @@index([contarctId])
+}
+
+model ChatMessage {
+  id         String   @id @default(uuid())
+  text       String
+  attachment String?
+  userId     String
+  contarctId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
+
+  @@index([contarctId, userId])
+}
+
+model Contarct {
+  id              String                @id @default(uuid())
+  startDate       DateTime              @default(now())
+  endDate         DateTime?
+  status          ContarctStatus        @default(ACTIVE)
+  link            String
+  fundedPayment   Float
+  receivedPayment Float
+  projectId       String                @unique
+  jobId           String?               @unique
+  freelancerId    String?
+  clientId        String
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  project         Project               @relation(fields: [projectId], references: [id])
+  job             Job?                  @relation(fields: [jobId], references: [id])
+  freelancer      Freelancer?           @relation(fields: [freelancerId], references: [id])
+  client          Client                @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  attachments     ContarctAttachments[]
+  activities      ContarctActivities[]
+  feedbacks       ContarctFeedback[]
+  millestones     Millestone[]
+  chatMessages    ChatMessage[]
+
+  @@index([projectId, jobId, freelancerId, clientId])
 }
 
 enum ExperienceLevel {
@@ -56,331 +346,8 @@ enum MillestoneStatus {
   INREVIEW
 }
 
-enum Privilege {
+enum PrivilegeType {
   READ
   WRITE
   MANAGE
-}
-
-model Account {
-  id           String  @id @default(uuid())
-  userName     String  @unique
-  email        String  @unique
-  password     String
-  refreshToken String?
-  user         User?
-}
-
-model User {
-  id             String           @id @default(uuid())
-  firstName      String
-  lastName       String
-  bio            String?
-  profilePicture String?
-  timeZone       DateTime
-  accountId      String           @unique
-  account        Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  freelancer     Freelancer?
-  client         Client?
-  admin          Admin?
-  creditCards    CreditCardInfo[]
-  chatMessages   ChatMessage[]
-
-  senderPaymentTransaction   PaymentTransaction[] @relation("TransactionFromUser")
-  receiverPaymentTransaction PaymentTransaction[] @relation("TransactionToUser")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([accountId])
-}
-
-model Freelancer {
-  id               String            @id @unique
-  user             User              @relation(fields: [id], references: [id], onDelete: Cascade)
-  freelancerSkills FreelancerSkill[]
-  jobTitle         String
-  jobCategory      JobCategory
-  experienceLevel  ExperienceLevel
-  jobInvitations   JobInvitation[]
-  proposals        Proposal[]
-  contarcts        Contarct[]
-}
-
-model Client {
-  id        String     @id @unique
-  user      User       @relation(fields: [id], references: [id], onDelete: Cascade)
-  jobs      Job[]
-  contarcts Contarct[]
-}
-
-model Admin {
-  id         String           @id @unique
-  user       User             @relation(fields: [id], references: [id], onDelete: Cascade)
-  privileges AdminPrivilege[]
-}
-
-model AdminPrivilege {
-  id      String    @id @default(uuid())
-  name    Privilege
-  Admin   Admin?    @relation(fields: [adminId], references: [id])
-  adminId String?
-}
-
-model Skill {
-  id    String          @id @default(uuid())
-  name  String
-  level ExperienceLevel
-
-  jobSkills        JobSkill[]
-  freelancerSkills FreelancerSkill[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model FreelancerSkill {
-  freelancerId String
-  freelancer   Freelancer @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
-
-  skillId String
-  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
-
-  @@id([freelancerId, skillId])
-  @@index([freelancerId, skillId])
-}
-
-model PaymentTransaction {
-  id          String                 @id @default(uuid())
-  date        DateTime               @default(now())
-  description String
-  amount      Float
-  type        PaymentTransactionType
-
-  senderId String?
-  sender   User?   @relation("TransactionFromUser", fields: [senderId], references: [id], onDelete: NoAction)
-
-  receiverId String?
-  receiver   User?   @relation("TransactionToUser", fields: [receiverId], references: [id], onDelete: NoAction)
-
-  @@index([senderId, receiverId])
-}
-
-model CreditCardInfo {
-  cardNumber     String   @id
-  holderName     String
-  expiryMonth    DateTime
-  expiryYear     DateTime
-  billingAddress String
-  userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-}
-
-model Project {
-  id          String      @id @default(uuid())
-  title       String
-  category    JobCategory
-  description String      @db.LongText
-  paymentType PaymentType
-  type        ProjectType
-  price       Float
-  length      String
-
-  job      Job?
-  contract Contarct?
-}
-
-model Job {
-  id                     String          @id @default(uuid())
-  visability             Visability      @default(PUBLIC)
-  location               String
-  link                   String
-  requiredSkills         JobSkill[]
-  requiredExperinceLevel ExperienceLevel
-
-  projectId String  @unique
-  project   Project @relation(fields: [projectId], references: [id])
-
-  clientId String
-  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
-  postedAt     DateTime?
-  lastViewedAt DateTime?
-
-  jobInvitations JobInvitation[]
-  Proposals      Proposal[]
-  Contarct       Contarct?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([clientId, projectId])
-}
-
-model ProposalAttachments {
-  id  String @id @default(uuid())
-  url String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  proposalId String
-  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
-
-  @@index([proposalId])
-}
-
-model Proposal {
-  id            String @id @default(uuid())
-  bid           Float
-  projectLength String
-
-  attachments ProposalAttachments[]
-  coverLetter String                @db.LongText
-
-  freelancerId String
-  freelancer   Freelancer @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
-
-  jobId String
-  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([freelancerId, jobId])
-  @@index([freelancerId, jobId])
-}
-
-model JobSkill {
-  jobId   String
-  job     Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  skillId String
-  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
-
-  @@id([jobId, skillId])
-  @@index([jobId, skillId])
-}
-
-model JobInvitation {
-  jobId        String
-  job          Job        @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  freelancerId String
-  freelancer   Freelancer @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
-  accepted     Boolean    @default(false)
-
-  @@id([jobId, freelancerId])
-  @@index([jobId, freelancerId])
-}
-
-model ContarctAttachments {
-  id  String @id @default(uuid())
-  url String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  contarctId String
-  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
-
-  @@index([contarctId])
-}
-
-model ContarctActivities {
-  id       String @id @default(uuid())
-  activity String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  contarctId String
-  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
-
-  @@index([contarctId])
-}
-
-model ContarctFeedback {
-  id       String @id @default(uuid())
-  feedback String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  contarctId String
-  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
-
-  @@index([contarctId])
-}
-
-model Millestone {
-  id          String           @id @default(uuid())
-  name        String
-  amount      Float
-  dueDate     DateTime?
-  description String?          @db.LongText
-  status      MillestoneStatus @default(PENDING)
-
-  // userId String
-  // user   User   @relation(fields: [userId], references: [id])
-
-  contarctId String
-  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([contarctId])
-}
-
-model ChatMessage {
-  id         String  @id @default(uuid())
-  text       String
-  attachment String?
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  contarctId String
-  contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([contarctId, userId])
-}
-
-model Contarct {
-  id              String                @id @default(uuid())
-  startDate       DateTime              @default(now())
-  endDate         DateTime?
-  status          ContarctStatus        @default(ACTIVE)
-  attachments     ContarctAttachments[]
-  activities      ContarctActivities[]
-  feedbacks       ContarctFeedback[]
-  link            String
-  fundedPayment   Float
-  receivedPayment Float
-  millestones     Millestone[]
-  chatMessages    ChatMessage[]
-
-  projectId String  @unique
-  project   Project @relation(fields: [projectId], references: [id])
-
-  jobId String? @unique
-  job   Job?    @relation(fields: [jobId], references: [id])
-
-  freelancerId String?
-  freelancer   Freelancer? @relation(fields: [freelancerId], references: [id])
-
-  clientId String
-  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([projectId, jobId, freelancerId, clientId])
 }

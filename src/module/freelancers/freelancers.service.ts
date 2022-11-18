@@ -25,6 +25,7 @@ export class FreelancersService {
             bio: createFreelancerDto.bio,
             profilePicture: createFreelancerDto.profilePicture,
             client: undefined,
+            admin: undefined,
             account: {
               create: {
                 email: createFreelancerDto.email,
