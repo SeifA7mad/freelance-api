@@ -56,6 +56,12 @@ enum MillestoneStatus {
   INREVIEW
 }
 
+enum Privilege {
+  READ
+  WRITE
+  MANAGE
+}
+
 model Account {
   id           String  @id @default(uuid())
   userName     String  @unique
@@ -76,8 +82,8 @@ model User {
   account        Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
   freelancer     Freelancer?
   client         Client?
+  admin          Admin?
   creditCards    CreditCardInfo[]
-  Millestone     Millestone[]
   chatMessages   ChatMessage[]
 
   senderPaymentTransaction   PaymentTransaction[] @relation("TransactionFromUser")
@@ -106,6 +112,19 @@ model Client {
   user      User       @relation(fields: [id], references: [id], onDelete: Cascade)
   jobs      Job[]
   contarcts Contarct[]
+}
+
+model Admin {
+  id         String           @id @unique
+  user       User             @relation(fields: [id], references: [id], onDelete: Cascade)
+  privileges AdminPrivilege[]
+}
+
+model AdminPrivilege {
+  id      String    @id @default(uuid())
+  name    Privilege
+  Admin   Admin?    @relation(fields: [adminId], references: [id])
+  adminId String?
 }
 
 model Skill {
@@ -305,8 +324,8 @@ model Millestone {
   description String?          @db.LongText
   status      MillestoneStatus @default(PENDING)
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+  // userId String
+  // user   User   @relation(fields: [userId], references: [id])
 
   contarctId String
   contarct   Contarct @relation(fields: [contarctId], references: [id], onDelete: Cascade)
@@ -314,7 +333,7 @@ model Millestone {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([contarctId, userId])
+  @@index([contarctId])
 }
 
 model ChatMessage {
