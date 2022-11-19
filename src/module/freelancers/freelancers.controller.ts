@@ -27,6 +27,7 @@ import {
 } from 'src/util/constants';
 import { FreelancerAuthGuard } from 'src/guard/freelancer-auth.guard';
 import { JwtUserRequest } from 'src/util/global-types';
+import { UpdateFreelancerSchema } from './validation/update-freelancer';
 
 @ApiTags('Freelancer')
 @Controller('freelancers')
@@ -37,6 +38,17 @@ export class FreelancersController {
   @UsePipes(new ZodValidationPipe(CreateFreelancerSchema))
   create(@Body() createFreelancerDto: CreateFreelancerDto) {
     return this.freelancersService.create(createFreelancerDto);
+  }
+
+  @Patch()
+  @ApiBearerAuth()
+  @UseGuards(FreelancerAuthGuard)
+  @UsePipes(new ZodValidationPipe(UpdateFreelancerSchema))
+  update(
+    @Req() req: JwtUserRequest,
+    @Body() updateFreelancerDto: UpdateFreelancerDto,
+  ) {
+    return this.freelancersService.update(req.user.id, updateFreelancerDto);
   }
 
   @Get('admin')
@@ -51,32 +63,5 @@ export class FreelancersController {
   @UseGuards(new AdminAuthGuard(ReadPrivilege))
   findOne(@Param('id') id: string) {
     return this.freelancersService.findOne(id);
-  }
-
-  @Patch('admin/:id')
-  @ApiBearerAuth()
-  @UseGuards(new AdminAuthGuard(WritePrivilege))
-  updateAdmin(
-    @Param('id') id: string,
-    @Body() updateFreelancerDto: UpdateFreelancerDto,
-  ) {
-    return this.freelancersService.update(id, updateFreelancerDto);
-  }
-
-  @Patch()
-  @ApiBearerAuth()
-  @UseGuards(FreelancerAuthGuard)
-  update(
-    @Req() req: JwtUserRequest,
-    @Body() updateFreelancerDto: UpdateFreelancerDto,
-  ) {
-    return this.freelancersService.update(req.user.id, updateFreelancerDto);
-  }
-
-  @Delete('admin/:id')
-  @ApiBearerAuth()
-  @UseGuards(new AdminAuthGuard(ManagePrivilege))
-  remove(@Param('id') id: string) {
-    return this.freelancersService.remove(id);
   }
 }

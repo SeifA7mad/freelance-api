@@ -81,7 +81,7 @@ export class FreelancersService {
       where: {
         id: id,
       },
-      data: {},
+      data: updateFreelancerDto,
     });
   }
 

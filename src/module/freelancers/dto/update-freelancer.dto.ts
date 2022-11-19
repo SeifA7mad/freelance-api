@@ -1,4 +1,16 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateFreelancerDto } from './create-freelancer.dto';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
+import {
+  ExperienceLevel,
+  JobCategory,
+  Freelancer as FreelancerModel,
+} from '@prisma/client';
 
-export class UpdateFreelancerDto extends PartialType(CreateFreelancerDto) {}
+export type UpdateFreelancerType = Omit<FreelancerModel, 'id'>;
+
+class dto implements UpdateFreelancerType {
+  jobTitle: string;
+  jobCategory: JobCategory;
+  experienceLevel: ExperienceLevel;
+}
+
+export class UpdateFreelancerDto extends PartialType(dto) {}
