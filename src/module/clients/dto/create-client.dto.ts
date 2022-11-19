@@ -1,5 +1,5 @@
 import { CreateAccountType } from 'src/module/accounts/dto/CreateAccountDto.dto';
-import { CreateUserType } from 'src/module/users/dto/CreateUserDto.dto';
+import { CreateUserType } from 'src/module/users/dto/create-user.dto';
 import { Client } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 

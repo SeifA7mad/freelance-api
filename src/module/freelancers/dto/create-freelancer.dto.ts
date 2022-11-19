@@ -7,7 +7,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 import { CreateAccountType } from 'src/module/accounts/dto/CreateAccountDto.dto';
-import { CreateUserType } from 'src/module/users/dto/CreateUserDto.dto';
+import { CreateUserType } from 'src/module/users/dto/create-user.dto';
 
 export type CreateFreelancerType = Omit<FreelancerModel, 'id'> &
   CreateUserType &
