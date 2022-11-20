@@ -1,6 +1,24 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreateUserDto, CreateUserType } from './create-user.dto';
+import { Prisma } from '@prisma/client';
 
-export type UpdateUserType = CreateUserType;
+const updateUserArgs = Prisma.validator<Prisma.UserArgs>()({
+  select: {
+    firstName: true,
+    lastName: true,
+    bio: true,
+    profilePicture: true,
+    timeZone: true,
+  },
+});
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {}
+export type updateUserType = Prisma.UserGetPayload<typeof updateUserArgs>;
+
+class UpdateUser implements updateUserType {
+  firstName: string;
+  lastName: string;
+  bio: string;
+  profilePicture: string;
+  timeZone: Date;
+}
+
+export class UpdateUserDto extends PartialType(UpdateUser) {}

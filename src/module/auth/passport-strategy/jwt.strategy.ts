@@ -26,8 +26,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         admin: {
           include: {
             privileges: {
-              include: {
-                Privilege: true,
+              select: {
+                Privilege: {
+                  select: {
+                    name: true,
+                  },
+                },
               },
             },
           },

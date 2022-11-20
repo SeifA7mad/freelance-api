@@ -82,8 +82,12 @@ export class AuthService {
     const includesAdmin = {
       include: {
         privileges: {
-          include: {
-            Privilege: true,
+          select: {
+            Privilege: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },

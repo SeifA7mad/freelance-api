@@ -11,26 +11,30 @@ export class FreelancersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createFreelancerDto: CreateFreelancerDto) {
-    const hashedPassword = await hash(createFreelancerDto.password, 12);
+    const { user: userData, ...freelancerData } = createFreelancerDto;
+    const { account: accountData } = userData;
+
+    const hashedPassword = await hash(accountData.password, 12);
+
     return this.prisma.freelancer.create({
       data: {
-        jobTitle: createFreelancerDto.jobTitle,
-        jobCategory: createFreelancerDto.jobCategory,
-        experienceLevel: createFreelancerDto.experienceLevel,
+        jobTitle: freelancerData.jobTitle,
+        jobCategory: freelancerData.jobCategory,
+        experienceLevel: freelancerData.experienceLevel,
         user: {
           create: {
-            firstName: createFreelancerDto.firstName,
-            lastName: createFreelancerDto.lastName,
-            timeZone: createFreelancerDto.timeZone,
-            bio: createFreelancerDto.bio,
-            profilePicture: createFreelancerDto.profilePicture,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            timeZone: userData.timeZone,
+            bio: userData.bio,
+            profilePicture: userData.profilePicture,
             client: undefined,
             admin: undefined,
             account: {
               create: {
-                email: createFreelancerDto.email,
+                email: accountData.email,
                 password: hashedPassword,
-                userName: createFreelancerDto.userName,
+                userName: accountData.userName,
               },
             },
           },
@@ -83,9 +87,5 @@ export class FreelancersService {
       },
       data: updateFreelancerDto,
     });
-  }
-
-  remove(id: string) {
-    return `This action removes a #${id} freelancer`;
   }
 }

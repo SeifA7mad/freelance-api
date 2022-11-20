@@ -19,7 +19,6 @@ import {
 } from 'src/util/constants';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
-import { UpdateClientDto } from './dto/update-client.dto';
 import { CreateClientSchema } from './validation/create-client';
 
 @ApiTags('Client')
@@ -45,19 +44,5 @@ export class ClientsController {
   @UseGuards(new AdminAuthGuard(ReadPrivilege))
   findOne(@Param('id') id: string) {
     return this.clientsService.findOne(id);
-  }
-
-  @Patch('admin/:id')
-  @ApiBearerAuth()
-  @UseGuards(new AdminAuthGuard(WritePrivilege))
-  update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
-    return this.clientsService.update(id, updateClientDto);
-  }
-
-  @Delete('admin/:id')
-  @ApiBearerAuth()
-  @UseGuards(new AdminAuthGuard(ManagePrivilege))
-  remove(@Param('id') id: string) {
-    return this.clientsService.remove(id);
   }
 }

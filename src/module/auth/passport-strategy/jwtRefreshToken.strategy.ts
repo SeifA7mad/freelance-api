@@ -28,6 +28,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
         account: true,
         freelancer: true,
         client: true,
+        admin: true,
       },
     });
 

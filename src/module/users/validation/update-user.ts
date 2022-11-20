@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { UpdateUserType } from '../dto/update-user.dto';
+import { updateUserType } from '../dto/update-user.dto';
 import { InferKeys } from 'src/util/TypescriptUtils';
 
-const schemaObj = InferKeys<UpdateUserType>({
+const schemaObj = InferKeys<updateUserType>({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   bio: z.string().optional(),

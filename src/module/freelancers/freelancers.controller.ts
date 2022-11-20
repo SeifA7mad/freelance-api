@@ -6,7 +6,6 @@ import {
   Req,
   Patch,
   Param,
-  Delete,
   UsePipes,
   UseGuards,
 } from '@nestjs/common';
@@ -20,11 +19,7 @@ import { CreateFreelancerSchema } from './validation/create-freelancer';
 
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AdminAuthGuard } from 'src/guard/admin-auth.guard';
-import {
-  ReadPrivilege,
-  ManagePrivilege,
-  WritePrivilege,
-} from 'src/util/constants';
+import { ReadPrivilege } from 'src/util/constants';
 import { FreelancerAuthGuard } from 'src/guard/freelancer-auth.guard';
 import { JwtUserRequest } from 'src/util/global-types';
 import { UpdateFreelancerSchema } from './validation/update-freelancer';

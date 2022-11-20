@@ -1,32 +1,45 @@
-import {
-  ExperienceLevel,
-  JobCategory,
-  Freelancer as FreelancerModel,
-} from '@prisma/client';
-
 import { ApiProperty } from '@nestjs/swagger';
+import { ExperienceLevel, JobCategory, Prisma } from '@prisma/client';
 
-import { CreateAccountType } from 'src/module/accounts/dto/CreateAccountDto.dto';
-import { CreateUserType } from 'src/module/users/dto/create-user.dto';
+import { CreateUserDto } from 'src/module/users/dto/create-user.dto';
 
-export type CreateFreelancerType = Omit<FreelancerModel, 'id'> &
-  CreateUserType &
-  CreateAccountType;
+const createFreelancerWithUserAccountArgs =
+  Prisma.validator<Prisma.FreelancerArgs>()({
+    select: {
+      user: {
+        select: {
+          account: {
+            select: {
+              userName: true,
+              email: true,
+              password: true,
+            },
+          },
+          firstName: true,
+          lastName: true,
+          bio: true,
+          profilePicture: true,
+          timeZone: true,
+        },
+      },
+      jobTitle: true,
+      jobCategory: true,
+      experienceLevel: true,
+    },
+  });
 
-export class CreateFreelancerDto implements CreateFreelancerType {
-  readonly jobTitle: string;
+export type createFreelancerWithUserAccountType = Prisma.FreelancerGetPayload<
+  typeof createFreelancerWithUserAccountArgs
+>;
+
+export class CreateFreelancerDto
+  implements createFreelancerWithUserAccountType
+{
+  jobTitle: string;
   @ApiProperty({ enum: Object.values(JobCategory) })
-  readonly jobCategory: JobCategory;
+  jobCategory: JobCategory;
   @ApiProperty({ enum: Object.values(ExperienceLevel) })
-  readonly experienceLevel: ExperienceLevel;
-  readonly firstName: string;
-  readonly lastName: string;
-  @ApiProperty({ required: false })
-  readonly bio: string;
-  @ApiProperty({ required: false })
-  readonly profilePicture: string;
-  readonly timeZone: Date;
-  readonly userName: string;
-  readonly email: string;
-  readonly password: string;
+  experienceLevel: ExperienceLevel;
+  @ApiProperty({ type: () => CreateUserDto })
+  user: CreateUserDto;
 }

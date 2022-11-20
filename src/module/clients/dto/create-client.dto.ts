@@ -1,21 +1,32 @@
-import { CreateAccountType } from 'src/module/accounts/dto/CreateAccountDto.dto';
-import { CreateUserType } from 'src/module/users/dto/create-user.dto';
-import { Client } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
+import { CreateUserDto } from 'src/module/users/dto/create-user.dto';
 
-export type CreateClientType = Omit<Client, 'id'> &
-  CreateUserType &
-  CreateAccountType;
+const createClientWithUserAccountArgs = Prisma.validator<Prisma.ClientArgs>()({
+  select: {
+    user: {
+      select: {
+        account: {
+          select: {
+            userName: true,
+            email: true,
+            password: true,
+          },
+        },
+        firstName: true,
+        lastName: true,
+        bio: true,
+        profilePicture: true,
+        timeZone: true,
+      },
+    },
+  },
+});
 
-export class CreateClientDto implements CreateClientType {
-  firstName: string;
-  lastName: string;
-  @ApiProperty({ required: false })
-  bio: string;
-  @ApiProperty({ required: false })
-  profilePicture: string;
-  timeZone: Date;
-  userName: string;
-  email: string;
-  password: string;
+export type createClientWithUserAccountType = Prisma.ClientGetPayload<
+  typeof createClientWithUserAccountArgs
+>;
+export class CreateClientDto implements createClientWithUserAccountType {
+  @ApiProperty({ type: () => CreateUserDto })
+  user: CreateUserDto;
 }
