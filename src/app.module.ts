@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 
 // Controllers imports
@@ -12,6 +13,8 @@ import { AccountsModule } from './module/accounts/accounts.module';
 import { FreelancersModule } from './module/freelancers/freelancers.module';
 import { ClientsModule } from './module/clients/clients.module';
 import { AuthModule } from './module/auth/auth.module';
+import { ErrorsInterceptor } from './interceptor/Errors.interceptor';
+import { TransformResponseInterceptor } from './interceptor/TansformResponse.interceptor';
 
 @Module({
   imports: [
@@ -27,6 +30,16 @@ import { AuthModule } from './module/auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ErrorsInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformResponseInterceptor,
+    },
+  ],
 })
 export class AppModule {}

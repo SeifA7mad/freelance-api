@@ -7,7 +7,7 @@ import {
   CallHandler,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class ErrorsInterceptor implements NestInterceptor {
         if (err instanceof Prisma.PrismaClientKnownRequestError) {
           if (err.code === 'P2002') {
             throw new ConflictException(
-              'There is a unique constraint violation, a new user cannot be created with this email',
+              'There is a unique constraint violation',
             );
           }
         }
