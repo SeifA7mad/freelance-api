@@ -8,6 +8,8 @@ import {
   Param,
   UsePipes,
   UseGuards,
+  Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
 
@@ -23,6 +25,7 @@ import { ReadPrivilege } from 'src/util/constants';
 import { FreelancerAuthGuard } from 'src/guard/freelancer-auth.guard';
 import { JwtUserRequest } from 'src/util/global-types';
 import { UpdateFreelancerSchema } from './validation/update-freelancer';
+import { FindAllQueryParamsDto } from './dto/findAll-freelancer.dto';
 
 @ApiTags('Freelancer')
 @Controller('freelancers')
@@ -49,8 +52,16 @@ export class FreelancersController {
   @Get('admin')
   @ApiBearerAuth()
   @UseGuards(new AdminAuthGuard(ReadPrivilege))
-  findAll() {
-    return this.freelancersService.findAll();
+  findAll(
+    @Query(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+      }),
+    )
+    query: FindAllQueryParamsDto,
+  ) {
+    return this.freelancersService.findAll(query);
   }
 
   @Get('admin/:id')

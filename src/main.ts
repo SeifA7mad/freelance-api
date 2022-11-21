@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ErrorsInterceptor } from './interceptor/Errors.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

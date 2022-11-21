@@ -1,10 +1,11 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
 import { hash } from 'bcryptjs';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateFreelancerDto } from './dto/create-freelancer.dto';
+import { FindAllQueryParamsDto } from './dto/findAll-freelancer.dto';
 import { UpdateFreelancerDto } from './dto/update-freelancer.dto';
+import { userIncludeAccount } from 'src/prisma/prisma-validator';
 
 @Injectable()
 export class FreelancersService {
@@ -42,24 +43,31 @@ export class FreelancersService {
       },
       include: {
         user: {
-          include: {
-            account: true,
-          },
+          include: userIncludeAccount,
         },
       },
     });
   }
 
-  async findAll() {
-    return this.prisma.freelancer.findMany({
-      include: {
-        user: {
-          include: {
-            account: true,
+  async findAll(query: FindAllQueryParamsDto) {
+    const { limit, page } = query;
+
+    const numberToSkip = limit * (page - 1) || undefined;
+
+    const [totalCount, data] = await this.prisma.$transaction([
+      this.prisma.freelancer.count(),
+      this.prisma.freelancer.findMany({
+        take: limit,
+        skip: numberToSkip,
+        include: {
+          user: {
+            include: userIncludeAccount,
           },
         },
-      },
-    });
+      }),
+    ]);
+
+    return { totalCount, data };
   }
 
   findOne(id: string) {
@@ -76,6 +84,9 @@ export class FreelancersService {
         contracts: true,
         proposals: true,
         jobInvitations: true,
+        user: {
+          include: userIncludeAccount,
+        },
       },
     });
   }

@@ -3,6 +3,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateClientDto } from './dto/create-client.dto';
 
 import { hash } from 'bcryptjs';
+import { userIncludeAccount } from 'src/prisma/prisma-validator';
+import { FindAllQueryParamsDto } from './dto/findAll-client.dto';
 
 @Injectable()
 export class ClientsService {
@@ -36,27 +38,34 @@ export class ClientsService {
       },
       include: {
         user: {
-          include: {
-            account: true,
-          },
+          include: userIncludeAccount,
         },
       },
     });
   }
 
-  findAll() {
-    return this.prisma.client.findMany({
-      include: {
-        user: {
-          include: {
-            account: true,
+  async findAll(query: FindAllQueryParamsDto) {
+    const { limit, page } = query;
+
+    const numberToSkip = limit * (page - 1) || undefined;
+
+    const [totalCount, data] = await this.prisma.$transaction([
+      this.prisma.client.count(),
+      this.prisma.client.findMany({
+        take: limit,
+        skip: numberToSkip,
+        include: {
+          user: {
+            include: userIncludeAccount,
           },
         },
-      },
-    });
+      }),
+    ]);
+
+    return { totalCount, data };
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     return this.prisma.client.findUnique({
       where: {
         id: id,
@@ -64,6 +73,9 @@ export class ClientsService {
       include: {
         contracts: true,
         jobs: true,
+        user: {
+          include: userIncludeAccount,
+        },
       },
     });
   }

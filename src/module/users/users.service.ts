@@ -18,7 +18,12 @@ export class UsersService {
         take: limit,
         skip: numberToSkip,
         include: {
-          account: true,
+          account: {
+            select: {
+              email: true,
+              userName: true,
+            },
+          },
           freelancer: true,
           client: true,
           admin: true,

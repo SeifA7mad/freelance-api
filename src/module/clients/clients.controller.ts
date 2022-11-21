@@ -8,17 +8,17 @@ import {
   Delete,
   UsePipes,
   UseGuards,
+  Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { query } from 'express';
 import { AdminAuthGuard } from 'src/guard/admin-auth.guard';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
-import {
-  ManagePrivilege,
-  ReadPrivilege,
-  WritePrivilege,
-} from 'src/util/constants';
+import { ReadPrivilege } from 'src/util/constants';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
+import { FindAllQueryParamsDto } from './dto/findAll-client.dto';
 import { CreateClientSchema } from './validation/create-client';
 
 @ApiTags('Client')
@@ -35,8 +35,18 @@ export class ClientsController {
   @Get('admin')
   @ApiBearerAuth()
   @UseGuards(new AdminAuthGuard(ReadPrivilege))
-  findAll() {
-    return this.clientsService.findAll();
+  findAll(
+    @Query(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
+      }),
+    )
+    query: FindAllQueryParamsDto,
+  ) {
+    return this.clientsService.findAll(query);
   }
 
   @Get('admin/:id')

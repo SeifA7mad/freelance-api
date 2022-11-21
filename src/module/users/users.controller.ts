@@ -27,13 +27,15 @@ export class UsersController {
   @Get('admin')
   @ApiBearerAuth()
   @UseGuards(new AdminAuthGuard(ReadPrivilege))
-  @UsePipes(
-    new ValidationPipe({
-      transform: true,
-      transformOptions: { enableImplicitConversion: true },
-    }),
-  )
-  findAll(@Query() query: FindAllQueryParamsDto) {
+  findAll(
+    @Query(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+      }),
+    )
+    query: FindAllQueryParamsDto,
+  ) {
     return this.usersService.findAll(query);
   }
 
