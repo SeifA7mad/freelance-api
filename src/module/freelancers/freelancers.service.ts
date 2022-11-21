@@ -5,7 +5,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateFreelancerDto } from './dto/create-freelancer.dto';
 import { FindAllQueryParamsDto } from './dto/findAll-freelancer.dto';
 import { UpdateFreelancerDto } from './dto/update-freelancer.dto';
-import { userIncludeAccount } from 'src/prisma/prisma-validator';
+import {
+  freelancerIncludeAll,
+  userIncludeAccount,
+} from 'src/prisma/prisma-validator';
+import { UpdateFreelancerSkillsDto } from './dto/update-skills.dto';
 
 @Injectable()
 export class FreelancersService {
@@ -75,19 +79,7 @@ export class FreelancersService {
       where: {
         id: id,
       },
-      include: {
-        freelancerSkills: {
-          include: {
-            skill: true,
-          },
-        },
-        contracts: true,
-        proposals: true,
-        jobInvitations: true,
-        user: {
-          include: userIncludeAccount,
-        },
-      },
+      include: freelancerIncludeAll,
     });
   }
 
@@ -97,6 +89,36 @@ export class FreelancersService {
         id: id,
       },
       data: updateFreelancerDto,
+    });
+  }
+
+  async updateSkills(
+    id: string,
+    updateFreelancerSkillsDto: UpdateFreelancerSkillsDto,
+  ) {
+    await this.prisma.freelancer.update({
+      where: {
+        id: id,
+      },
+      data: {
+        freelancerSkills: {
+          deleteMany: {},
+        },
+      },
+    });
+
+    return this.prisma.freelancer.update({
+      where: {
+        id: id,
+      },
+      data: {
+        freelancerSkills: {
+          createMany: {
+            data: updateFreelancerSkillsDto.freelancerSkills,
+          },
+        },
+      },
+      include: freelancerIncludeAll,
     });
   }
 }

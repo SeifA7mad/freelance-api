@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { ExperienceLevel, JobCategory, Prisma } from '@prisma/client';
 
 const updateFreelancerArgs = Prisma.validator<Prisma.FreelancerArgs>()({
@@ -12,11 +12,11 @@ const updateFreelancerArgs = Prisma.validator<Prisma.FreelancerArgs>()({
 export type updateFreelancerType = Prisma.FreelancerGetPayload<
   typeof updateFreelancerArgs
 >;
-
-class dto implements updateFreelancerType {
+export class UpdateFreelancerDto {
+  @ApiProperty({ required: false })
   jobTitle: string;
+  @ApiProperty({ enum: Object.values(JobCategory), required: false })
   jobCategory: JobCategory;
+  @ApiProperty({ enum: Object.values(ExperienceLevel), required: false })
   experienceLevel: ExperienceLevel;
 }
-
-export class UpdateFreelancerDto extends PartialType(dto) {}

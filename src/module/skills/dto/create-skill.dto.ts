@@ -9,11 +9,11 @@ const createSkillArgs = Prisma.validator<Prisma.SkillArgs>()({
 
 type createSkillType = Prisma.SkillGetPayload<typeof createSkillArgs>;
 
-class CreateSkillArgs implements createSkillType {
+class CreateSkillObj implements createSkillType {
   name: string;
 }
 
 export class CreateSkillDto {
-  @ApiProperty({ type: () => CreateSkillArgs, isArray: true })
-  skills: CreateSkillArgs[];
+  @ApiProperty({ type: () => CreateSkillObj, isArray: true })
+  skills: CreateSkillObj[];
 }

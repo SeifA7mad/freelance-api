@@ -26,6 +26,8 @@ import { FreelancerAuthGuard } from 'src/guard/freelancer-auth.guard';
 import { JwtUserRequest } from 'src/util/global-types';
 import { UpdateFreelancerSchema } from './validation/update-freelancer';
 import { FindAllQueryParamsDto } from './dto/findAll-freelancer.dto';
+import { UpdateFreelancerSkillsDto } from './dto/update-skills.dto';
+import { UpdateFreelancerSkillsSchema } from './validation/update-freelancer-skills';
 
 @ApiTags('Freelancer')
 @Controller('freelancers')
@@ -47,6 +49,20 @@ export class FreelancersController {
     @Body() updateFreelancerDto: UpdateFreelancerDto,
   ) {
     return this.freelancersService.update(req.user.id, updateFreelancerDto);
+  }
+
+  @Patch('skills')
+  @ApiBearerAuth()
+  @UseGuards(FreelancerAuthGuard)
+  @UsePipes(new ZodValidationPipe(UpdateFreelancerSkillsSchema))
+  updateSkills(
+    @Req() req: JwtUserRequest,
+    @Body() updateFreelancerSkillsDto: UpdateFreelancerSkillsDto,
+  ) {
+    return this.freelancersService.updateSkills(
+      req.user.id,
+      updateFreelancerSkillsDto,
+    );
   }
 
   @Get('admin')

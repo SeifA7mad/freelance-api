@@ -8,3 +8,23 @@ export const userIncludeAccount = Prisma.validator<Prisma.UserInclude>()({
     },
   },
 });
+
+export const freelancerIncludeAll =
+  Prisma.validator<Prisma.FreelancerInclude>()({
+    freelancerSkills: {
+      select: {
+        skill: {
+          select: {
+            name: true,
+          },
+        },
+        level: true,
+      },
+    },
+    contracts: true,
+    proposals: true,
+    jobInvitations: true,
+    user: {
+      include: userIncludeAccount,
+    },
+  });

@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   UseGuards,
@@ -16,7 +15,6 @@ import { SkillsService } from './skills.service';
 
 // Dto's imports
 import { CreateSkillDto } from './dto/create-skill.dto';
-import { UpdateSkillDto } from './dto/update-skill.dto';
 
 // Guards imports
 import { AdminAuthGuard } from 'src/guard/admin-auth.guard';
