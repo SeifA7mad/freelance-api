@@ -8,13 +8,23 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UserAuthGuard } from 'src/guard/user-auth.guard';
-import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
-import { JwtUserRequest } from 'src/util/global-types';
+
+// Services imports
 import { AccountsService } from './accounts.service';
+
+// Dto's imports
 import { DeleteAccountDto } from './dto/delete-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
+
+// Guards imports
+import { UserAuthGuard } from 'src/guard/user-auth.guard';
+
+// Pipes imports
+import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
 import { UpdateAccountSchema } from './validation/update-account';
+
+// Utils imports
+import { JwtUserRequest } from 'src/util/global-types';
 
 @ApiTags('Account')
 @Controller('accounts')

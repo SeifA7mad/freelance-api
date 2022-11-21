@@ -7,14 +7,19 @@ import { AppController } from './app.controller';
 
 // Services imports
 import { AppService } from './app.service';
+
+// Modules imports
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './module/users/users.module';
 import { AccountsModule } from './module/accounts/accounts.module';
 import { FreelancersModule } from './module/freelancers/freelancers.module';
 import { ClientsModule } from './module/clients/clients.module';
 import { AuthModule } from './module/auth/auth.module';
+import { SkillsModule } from './module/skills/skills.module';
+
+// Interceptor imports
 import { ErrorsInterceptor } from './interceptor/Errors.interceptor';
-import { TransformResponseInterceptor } from './interceptor/TansformResponse.interceptor';
+import { TransformResponseInterceptor } from './interceptor/TransformResponse.interceptor';
 
 @Module({
   imports: [
@@ -28,6 +33,7 @@ import { TransformResponseInterceptor } from './interceptor/TansformResponse.int
     FreelancersModule,
     ClientsModule,
     AuthModule,
+    SkillsModule,
   ],
   controllers: [AppController],
   providers: [
