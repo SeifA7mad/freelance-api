@@ -20,6 +20,7 @@ import { SkillsModule } from './module/skills/skills.module';
 // Interceptor imports
 import { ErrorsInterceptor } from './interceptor/Errors.interceptor';
 import { TransformResponseInterceptor } from './interceptor/TransformResponse.interceptor';
+import { ProjectsModule } from './module/projects/projects.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { TransformResponseInterceptor } from './interceptor/TransformResponse.in
     ClientsModule,
     AuthModule,
     SkillsModule,
+    ProjectsModule,
   ],
   controllers: [AppController],
   providers: [

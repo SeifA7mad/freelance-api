@@ -57,6 +57,7 @@ model Client {
   user      User       @relation(fields: [id], references: [id], onDelete: Cascade)
   jobs      Job[]
   contracts Contract[]
+  project   Project[]
 }
 
 model Admin {
@@ -131,20 +132,26 @@ model CreditCardInfo {
 }
 
 model Project {
-  id          String      @id @default(uuid())
-  title       String
-  category    JobCategory
-  description String      @db.LongText
-  paymentType PaymentType
-  type        ProjectType
-  price       Float
-  length      String
-  job         Job?
-  contract    Contract?
+  id            String      @unique @default(uuid())
+  title         String
+  category      JobCategory
+  description   String      @db.LongText
+  paymentType   PaymentType
+  type          ProjectType
+  price         Float
+  projectLength String
+  job           Job?
+  contract      Contract?
+  clientId      String
+  client        Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@id([id, clientId])
+  @@index([clientId])
 }
 
 model Job {
   id                     String          @id @default(uuid())
+  title                  String
   visability             Visability      @default(PUBLIC)
   location               String
   link                   String
@@ -153,7 +160,7 @@ model Job {
   lastViewedAt           DateTime?
 
   projectId String  @unique
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Restrict)
   clientId  String
   client    Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
@@ -274,7 +281,7 @@ model Millestone {
 
 model ChatMessage {
   id         String  @id @default(uuid())
-  text       String
+  text       String?
   attachment String?
 
   userId     String
@@ -297,14 +304,14 @@ model Contract {
   fundedPayment   Float
   receivedPayment Float
 
-  projectId    String      @unique
-  project      Project?    @relation(fields: [projectId], references: [id])
-  jobId        String?     @unique
-  job          Job?        @relation(fields: [jobId], references: [id])
-  freelancerId String?
-  freelancer   Freelancer? @relation(fields: [freelancerId], references: [id])
+  projectId    String?    @unique
+  project      Project?   @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  jobId        String?    @unique
+  job          Job?       @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  freelancerId String
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [id])
   clientId     String
-  client       Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client       Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   attachments  ContractAttachments[]
   activities   ContractActivities[]

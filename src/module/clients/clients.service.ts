@@ -73,6 +73,7 @@ export class ClientsService {
       include: {
         contracts: true,
         jobs: true,
+        project: true,
         user: {
           include: userIncludeAccount,
         },

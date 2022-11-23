@@ -21,6 +21,12 @@ export class TransformResponseInterceptor<T>
   ): Observable<Response<T>> {
     return next.handle().pipe(
       map((responseVale) => {
+        if (!responseVale) {
+          return {
+            status: 'Not_Found',
+            data: responseVale,
+          };
+        }
         if (responseVale.data) {
           return {
             status: 'success',
