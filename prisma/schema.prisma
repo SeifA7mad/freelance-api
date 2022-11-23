@@ -122,9 +122,10 @@ model CreditCardInfo {
   expiryYear     DateTime
   billingAddress String
   userId         String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
 }
@@ -148,18 +149,21 @@ model Job {
   location               String
   link                   String
   requiredExperinceLevel ExperienceLevel
-  projectId              String          @unique
-  clientId               String
   postedAt               DateTime?
   lastViewedAt           DateTime?
-  createdAt              DateTime        @default(now())
-  updatedAt              DateTime        @updatedAt
-  project                Project         @relation(fields: [projectId], references: [id])
-  client                 Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  Proposals              Proposal[]
-  requiredSkills         JobSkill[]
-  jobInvitations         JobInvitation[]
-  contract               Contract?
+
+  projectId String  @unique
+  project   Project @relation(fields: [projectId], references: [id])
+  clientId  String
+  client    Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  Proposals      Proposal[]
+  requiredSkills JobSkill[]
+  jobInvitations JobInvitation[]
+  contract       Contract?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([clientId, projectId])
 }
@@ -176,17 +180,20 @@ model ProposalAttachments {
 }
 
 model Proposal {
-  id            String                @id @default(uuid())
+  id            String @id @default(uuid())
   bid           Float
   projectLength String
-  coverLetter   String                @db.LongText
-  freelancerId  String
-  jobId         String
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
-  freelancer    Freelancer            @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
-  job           Job                   @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  attachments   ProposalAttachments[]
+  coverLetter   String @db.LongText
+
+  freelancerId String
+  freelancer   Freelancer @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
+  jobId        String
+  job          Job        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  attachments ProposalAttachments[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([freelancerId, jobId])
   @@index([freelancerId, jobId])
@@ -216,10 +223,11 @@ model JobInvitation {
 model ContractAttachments {
   id         String   @id @default(uuid())
   url        String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
   contractId String
   contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([contractId])
 }
@@ -227,10 +235,11 @@ model ContractAttachments {
 model ContractActivities {
   id         String   @id @default(uuid())
   activity   String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
   contractId String
   contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([contractId])
 }
@@ -238,10 +247,11 @@ model ContractActivities {
 model ContractFeedback {
   id         String   @id @default(uuid())
   feedback   String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
   contractId String
   contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([contractId])
 }
@@ -279,28 +289,31 @@ model ChatMessage {
 }
 
 model Contract {
-  id              String                @id @default(uuid())
-  startDate       DateTime              @default(now())
+  id              String         @id @default(uuid())
+  startDate       DateTime       @default(now())
   endDate         DateTime?
-  status          ContractStatus        @default(ACTIVE)
+  status          ContractStatus @default(INACTIVE)
   link            String
   fundedPayment   Float
   receivedPayment Float
-  projectId       String                @unique
-  jobId           String?               @unique
-  freelancerId    String?
-  clientId        String
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
-  project         Project               @relation(fields: [projectId], references: [id])
-  job             Job?                  @relation(fields: [jobId], references: [id])
-  freelancer      Freelancer?           @relation(fields: [freelancerId], references: [id])
-  client          Client                @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  attachments     ContractAttachments[]
-  activities      ContractActivities[]
-  feedbacks       ContractFeedback[]
-  millestones     Millestone[]
-  chatMessages    ChatMessage[]
+
+  projectId    String      @unique
+  project      Project?    @relation(fields: [projectId], references: [id])
+  jobId        String?     @unique
+  job          Job?        @relation(fields: [jobId], references: [id])
+  freelancerId String?
+  freelancer   Freelancer? @relation(fields: [freelancerId], references: [id])
+  clientId     String
+  client       Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  attachments  ContractAttachments[]
+  activities   ContractActivities[]
+  feedbacks    ContractFeedback[]
+  millestones  Millestone[]
+  chatMessages ChatMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([projectId, jobId, freelancerId, clientId])
 }
@@ -340,6 +353,7 @@ enum ProjectType {
 enum ContractStatus {
   COMPLETED
   ACTIVE
+  INACTIVE
 }
 
 enum MillestoneStatus {
