@@ -168,4 +168,8 @@ export class AuthService {
       user: updatedUser,
     };
   }
+
+  async getUserPayload(jwtToken: string) {
+    return this.jwtService.decode(jwtToken);
+  }
 }

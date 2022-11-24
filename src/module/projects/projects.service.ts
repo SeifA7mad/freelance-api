@@ -26,12 +26,33 @@ export class ProjectsService {
     });
   }
 
+  findAllAdmin() {
+    return this.prisma.project.findMany({
+      include: {
+        client: true,
+      },
+    });
+  }
+
   findOne(id: string, clientId: string) {
     return this.prisma.project.findUnique({
       where: {
         id_clientId: { id, clientId },
       },
       include: {
+        contract: true,
+        job: true,
+      },
+    });
+  }
+
+  findOneAdmin(id: string) {
+    return this.prisma.project.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        client: true,
         contract: true,
         job: true,
       },

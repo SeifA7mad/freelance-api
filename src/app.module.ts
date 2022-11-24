@@ -21,6 +21,7 @@ import { SkillsModule } from './module/skills/skills.module';
 import { ErrorsInterceptor } from './interceptor/Errors.interceptor';
 import { TransformResponseInterceptor } from './interceptor/TransformResponse.interceptor';
 import { ProjectsModule } from './module/projects/projects.module';
+import { SocketsIoModule } from './gateway/sockets/Socketsio.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ProjectsModule } from './module/projects/projects.module';
     AuthModule,
     SkillsModule,
     ProjectsModule,
+    SocketsIoModule,
   ],
   controllers: [AppController],
   providers: [

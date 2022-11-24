@@ -19,6 +19,7 @@ import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
 import { CreateProjectSchema } from './validation/create-project';
 import { JwtUserRequest } from 'src/util/global-types';
 import { UpdateProjectSchema } from './validation/update-project';
+import { AdminAuthGuard } from 'src/guard/admin-auth.guard';
 
 @ApiTags('Project')
 @ApiBearerAuth()
@@ -42,10 +43,22 @@ export class ProjectsController {
     return this.projectsService.findAll(req.user.id);
   }
 
+  @Get('admin')
+  @UseGuards(AdminAuthGuard)
+  findAllAdmin() {
+    return this.projectsService.findAllAdmin();
+  }
+
   @Get(':id')
   @UseGuards(ClientAuthGuard)
   findOne(@Req() req: JwtUserRequest, @Param('id') id: string) {
     return this.projectsService.findOne(id, req.user.id);
+  }
+
+  @Get('admin/:id')
+  @UseGuards(AdminAuthGuard)
+  findOneAdmin(@Param('id') id: string) {
+    return this.projectsService.findOneAdmin(id);
   }
 
   @Patch(':id')
