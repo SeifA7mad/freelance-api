@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt/dist';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { compare, hash } from 'bcryptjs';
-import { UserJwtPayload } from './dto/user-jwt-payload.interface';
+import { UserJwtPayload, UserType } from './dto/user-jwt-payload.interface';
 import { Account, User } from '@prisma/client';
 
 @Injectable()
@@ -20,7 +20,13 @@ export class AuthService {
         email: authCredentialsDto.email,
       },
       include: {
-        user: true,
+        user: {
+          include: {
+            admin: true,
+            client: true,
+            freelancer: true,
+          },
+        },
       },
     });
 
@@ -35,6 +41,7 @@ export class AuthService {
       userId: userAccount.user.id,
       email: userAccount.email,
       username: userAccount.userName,
+      userType: await this.getUserType(userAccount.user.id, userAccount.user),
     };
 
     const { accessToken, refreshToken } = await this.getTokens(payload);
@@ -106,6 +113,31 @@ export class AuthService {
     });
   }
 
+  private async getUserType(userId: string, userData: any = null) {
+    if (!userData) {
+      userData = await this.prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        include: {
+          freelancer: true,
+          client: true,
+          admin: true,
+        },
+      });
+    }
+
+    let userType: UserType = UserType.ADMIN;
+
+    if (userData.freelancer) {
+      userType = UserType.FREELANCER;
+    } else if (userData.client) {
+      userType = UserType.CLIENT;
+    }
+
+    return userType;
+  }
+
   private async updateRefreshToken(userId: string, refreshToken: string) {
     const hashedRefreshToken = await hash(refreshToken, 12);
     return this.prisma.user.update({
@@ -155,6 +187,7 @@ export class AuthService {
       userId: user.id,
       email: user.account.email,
       username: user.account.userName,
+      userType: await this.getUserType(user.id),
     };
 
     const { accessToken, refreshToken: newRefreshToken } = await this.getTokens(

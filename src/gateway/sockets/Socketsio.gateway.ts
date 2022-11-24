@@ -1,5 +1,3 @@
-import { UnauthorizedException } from '@nestjs/common';
-import { UseGuards } from '@nestjs/common/decorators';
 import {
   MessageBody,
   OnGatewayConnection,
@@ -29,9 +27,10 @@ export class SocketsIoGateway
   server: Server;
 
   async handleConnection(client: Socket) {
-    const userPayload = await this.authService.getUserPayload(
-      client.handshake.headers.authorization,
-    );
+    const jwtToken = client.handshake.headers.authorization
+      .replace('Bearer', '')
+      .trim();
+    const userPayload = await this.authService.getUserPayload(jwtToken);
 
     if (!userPayload) {
       client._error('Invalid credentials');
@@ -55,6 +54,9 @@ export class SocketsIoGateway
 
   @SubscribeMessage('jobs')
   async handleJobs(@MessageBody() data: string) {
+    // if (!data) {
+    //   throw new WsException('Invalid credentials.');
+    // }
     return data;
   }
 }
