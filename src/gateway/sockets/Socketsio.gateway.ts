@@ -12,6 +12,8 @@ import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/module/auth/auth.service';
+import { CACHE_MANAGER, Inject } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 
 @WebSocketGateway({
   cors: {
@@ -21,7 +23,10 @@ import { AuthService } from 'src/module/auth/auth.service';
 export class SocketsIoGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    @Inject(CACHE_MANAGER) private cacheService: Cache,
+  ) {}
 
   @WebSocketServer()
   server: Server;
@@ -34,15 +39,22 @@ export class SocketsIoGateway
 
     if (!userPayload) {
       client._error('Invalid credentials');
+      return;
     }
 
-    console.log(userPayload);
+    this.cacheService.set(userPayload.userId, client.id);
 
-    console.log('CONNECTED', client.id);
+    console.log('CONNECTED', userPayload.userId, client.id);
   }
 
-  handleDisconnect(client: Socket) {
-    console.log('DISCONNECTED', client.id);
+  async handleDisconnect(client: Socket) {
+    const jwtToken = client.handshake.headers.authorization
+      .replace('Bearer', '')
+      .trim();
+    const userPayload = await this.authService.getUserPayload(jwtToken);
+
+    this.cacheService.del(userPayload.userId);
+    console.log('DISCONNECTED', userPayload.userId, client.id);
   }
 
   //   @SubscribeMessage('events')

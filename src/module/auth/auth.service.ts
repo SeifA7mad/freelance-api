@@ -203,6 +203,11 @@ export class AuthService {
   }
 
   async getUserPayload(jwtToken: string) {
-    return this.jwtService.decode(jwtToken);
+    try {
+      const userPayload = await this.jwtService.verifyAsync(jwtToken);
+      return userPayload;
+    } catch (err) {
+      return null;
+    }
   }
 }
