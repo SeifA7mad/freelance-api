@@ -150,14 +150,15 @@ model Project {
 }
 
 model Job {
-  id                     String          @id @default(uuid())
-  title                  String
-  visability             Visability      @default(PUBLIC)
-  location               String
-  link                   String
-  requiredExperinceLevel ExperienceLevel
-  postedAt               DateTime?
-  lastViewedAt           DateTime?
+  id                      String          @unique @default(uuid())
+  title                   String
+  visibility              Visibility      @default(PUBLIC)
+  location                String
+  link                    String
+  requiredExperienceLevel ExperienceLevel
+  postedAt                DateTime?
+  lastViewedAt            DateTime?
+  requiredSkills          JobSkill[]
 
   projectId String  @unique
   project   Project @relation(fields: [projectId], references: [id], onDelete: Restrict)
@@ -165,13 +166,13 @@ model Job {
   client    Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   Proposals      Proposal[]
-  requiredSkills JobSkill[]
   jobInvitations JobInvitation[]
   contract       Contract?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@id([id, clientId])
   @@index([clientId, projectId])
 }
 
@@ -342,7 +343,7 @@ enum JobCategory {
   WEB_DEVOLPMENT
 }
 
-enum Visability {
+enum Visibility {
   PUBLIC
   PRIVATE
   PROTECTED

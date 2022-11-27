@@ -20,6 +20,7 @@ import { CreateProjectSchema } from './validation/create-project';
 import { JwtUserRequest } from 'src/util/global-types';
 import { UpdateProjectSchema } from './validation/update-project';
 import { AdminAuthGuard } from 'src/guard/admin-auth.guard';
+import { ReadPrivilege } from 'src/util/constants';
 
 @ApiTags('Project')
 @ApiBearerAuth()
@@ -44,7 +45,7 @@ export class ProjectsController {
   }
 
   @Get('admin')
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(new AdminAuthGuard(ReadPrivilege))
   findAllAdmin() {
     return this.projectsService.findAllAdmin();
   }
@@ -56,7 +57,7 @@ export class ProjectsController {
   }
 
   @Get('admin/:id')
-  @UseGuards(AdminAuthGuard)
+  @UseGuards(new AdminAuthGuard(ReadPrivilege))
   findOneAdmin(@Param('id') id: string) {
     return this.projectsService.findOneAdmin(id);
   }
