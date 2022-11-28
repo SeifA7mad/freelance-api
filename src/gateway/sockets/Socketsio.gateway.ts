@@ -32,12 +32,19 @@ export class SocketsIoGateway
   server: Server;
 
   async handleConnection(client: Socket) {
+    if (!client.handshake.headers.authorization) {
+      client.emit('exception', 'Invalid credentials');
+      client._error('Invalid credentials');
+      return;
+    }
+
     const jwtToken = client.handshake.headers.authorization
       .replace('Bearer', '')
       .trim();
     const userPayload = await this.authService.getUserPayload(jwtToken);
 
     if (!userPayload) {
+      client.emit('exception', 'Invalid credentials');
       client._error('Invalid credentials');
       return;
     }
@@ -66,9 +73,6 @@ export class SocketsIoGateway
 
   @SubscribeMessage('jobs')
   async handleJobs(@MessageBody() data: string) {
-    // if (!data) {
-    //   throw new WsException('Invalid credentials.');
-    // }
-    return data;
+    this.server.emit('jobs', data);
   }
 }

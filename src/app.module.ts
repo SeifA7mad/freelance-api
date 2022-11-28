@@ -23,6 +23,7 @@ import { TransformResponseInterceptor } from './interceptor/TransformResponse.in
 import { ProjectsModule } from './module/projects/projects.module';
 import { SocketsIoModule } from './gateway/sockets/Socketsio.module';
 import { JobsModule } from './module/jobs/jobs.module';
+import { ProposalsModule } from './module/proposals/proposals.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -49,6 +50,7 @@ import * as redisStore from 'cache-manager-redis-store';
     ProjectsModule,
     SocketsIoModule,
     JobsModule,
+    ProposalsModule,
   ],
   controllers: [AppController],
   providers: [

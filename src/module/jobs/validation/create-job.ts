@@ -7,7 +7,7 @@ const schemaObj = InferKeys<CreateJobDto>({
   title: z.string(),
   link: z.string(),
   location: z.string(),
-  projectId: z.string(),
+  projectId: z.string().uuid(),
   visibility: z.nativeEnum(Visibility),
   postedAt: z.preprocess((arg) => {
     if (typeof arg == 'string' || arg instanceof Date) return new Date(arg);
