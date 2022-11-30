@@ -5,6 +5,7 @@ import {
   BadGatewayException,
   ConflictException,
   CallHandler,
+  BadRequestException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Observable } from 'rxjs';
@@ -20,6 +21,8 @@ export class ErrorsInterceptor implements NestInterceptor {
             throw new ConflictException(
               'There is a unique constraint violation',
             );
+          } else if (err.code === 'P2025') {
+            throw new BadRequestException(err.meta.cause);
           }
         }
         throw err;

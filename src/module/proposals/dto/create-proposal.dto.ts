@@ -25,7 +25,9 @@ export type CreateProposalAttachmentType = Prisma.ProposalAttachmentsGetPayload<
   typeof createProposalAttachmentArgs
 >;
 
-class CreateProposalAttachmentDto implements CreateProposalAttachmentType {
+export class CreateProposalAttachmentDto
+  implements CreateProposalAttachmentType
+{
   url: string;
 }
 

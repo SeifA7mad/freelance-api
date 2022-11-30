@@ -79,7 +79,8 @@ model AdminPrivilege {
   Privilege   Privilege @relation(fields: [privilegeId], references: [id])
 
   @@id([adminId, privilegeId])
-  @@index([adminId, privilegeId])
+  @@index([adminId])
+  @@index([privilegeId])
 }
 
 model Skill {
@@ -99,7 +100,8 @@ model FreelancerSkill {
   level        ExperienceLevel
 
   @@id([freelancerId, skillId])
-  @@index([freelancerId, skillId])
+  @@index([freelancerId])
+  @@index([skillId])
 }
 
 model PaymentTransaction {
@@ -113,7 +115,8 @@ model PaymentTransaction {
   sender      User?                  @relation("TransactionFromUser", fields: [senderId], references: [id], onDelete: NoAction)
   receiver    User?                  @relation("TransactionToUser", fields: [receiverId], references: [id], onDelete: NoAction)
 
-  @@index([senderId, receiverId])
+  @@index([senderId])
+  @@index([receiverId])
 }
 
 model CreditCardInfo {
@@ -203,8 +206,10 @@ model Proposal {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([freelancerId, id])
   @@unique([freelancerId, jobId])
-  @@index([freelancerId, jobId])
+  @@index([freelancerId])
+  @@index([jobId])
 }
 
 model JobSkill {
@@ -214,7 +219,8 @@ model JobSkill {
   skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
   @@id([jobId, skillId])
-  @@index([jobId, skillId])
+  @@index([jobId])
+  @@index([skillId])
 }
 
 model JobInvitation {
@@ -225,7 +231,8 @@ model JobInvitation {
   freelancer   Freelancer @relation(fields: [freelancerId], references: [id], onDelete: Cascade)
 
   @@id([jobId, freelancerId])
-  @@index([jobId, freelancerId])
+  @@index([jobId])
+  @@index([freelancerId])
 }
 
 model ContractAttachments {
@@ -293,7 +300,8 @@ model ChatMessage {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([contractId, userId])
+  @@index([contractId])
+  @@index([userId])
 }
 
 model Contract {
@@ -323,7 +331,10 @@ model Contract {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([projectId, jobId, freelancerId, clientId])
+  @@index([projectId])
+  @@index([freelancerId])
+  @@index([clientId])
+  @@index([jobId])
 }
 
 enum ExperienceLevel {
