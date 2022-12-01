@@ -115,6 +115,7 @@ export class FreelancersService {
         freelancerSkills: {
           createMany: {
             data: updateFreelancerSkillsDto.freelancerSkills,
+            skipDuplicates: true,
           },
         },
       },

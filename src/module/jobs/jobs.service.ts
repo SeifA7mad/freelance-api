@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateJobInvitationDto } from './dto/create-job-invitation.dto';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 
@@ -100,6 +101,8 @@ export class JobsService {
       postedAt: updateJobDto.postedAt,
     };
 
+    let requiredSkills = undefined;
+
     if (updateJobDto.requiredSkills) {
       await this.prisma.job.update({
         where: {
@@ -115,24 +118,12 @@ export class JobsService {
         },
       });
 
-      return this.prisma.job.update({
-        where: {
-          id_clientId: {
-            id: id,
-            clientId: clientId,
-          },
+      requiredSkills = {
+        createMany: {
+          data: updateJobDto.requiredSkills,
+          skipDuplicates: true,
         },
-        data: {
-          ...updateInputs,
-          requiredSkills: {
-            createMany: {
-              data: updateJobDto.requiredSkills,
-              skipDuplicates: true,
-            },
-          },
-        },
-        include: JobInclude,
-      });
+      };
     }
 
     return this.prisma.job.update({
@@ -144,6 +135,7 @@ export class JobsService {
       },
       data: {
         ...updateInputs,
+        requiredSkills: requiredSkills,
       },
       include: JobInclude,
     });
@@ -155,6 +147,27 @@ export class JobsService {
         id_clientId: {
           id: id,
           clientId: clientId,
+        },
+      },
+    });
+  }
+
+  createJobInvitation(
+    clientId: string,
+    createJobInvitationDto: CreateJobInvitationDto,
+  ) {
+    return this.prisma.job.update({
+      where: {
+        id_clientId: {
+          id: createJobInvitationDto.jobId,
+          clientId: clientId,
+        },
+      },
+      data: {
+        jobInvitations: {
+          createMany: {
+            data: createJobInvitationDto.freelancerIds,
+          },
         },
       },
     });

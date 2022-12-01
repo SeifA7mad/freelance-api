@@ -10,6 +10,7 @@ import {
   UseGuards,
   Query,
   ValidationPipe,
+  Put,
 } from '@nestjs/common';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
 
@@ -51,7 +52,7 @@ export class FreelancersController {
     return this.freelancersService.update(req.user.id, updateFreelancerDto);
   }
 
-  @Patch('skills')
+  @Put('skills')
   @ApiBearerAuth()
   @UseGuards(FreelancerAuthGuard)
   @UsePipes(new ZodValidationPipe(UpdateFreelancerSkillsSchema))

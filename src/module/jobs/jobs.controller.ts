@@ -19,6 +19,8 @@ import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
 import { CreateJobSchema } from './validation/create-job';
 import { JwtUserRequest } from 'src/util/global-types';
 import { UpdateJobSchema } from './validation/update-job';
+import { CreateJobInvitationDto } from './dto/create-job-invitation.dto';
+import { CreateJobInvitationSchema } from './validation/create-job-invitation';
 
 @ApiTags('Job')
 @Controller('jobs')
@@ -63,5 +65,20 @@ export class JobsController {
   @UseGuards(ClientAuthGuard)
   remove(@Param('id') id: string, @Req() req: JwtUserRequest) {
     return this.jobsService.remove(id, req.user.id);
+  }
+
+  @Post('job-invitation')
+  @ApiBearerAuth()
+  @UseGuards(ClientAuthGuard)
+  @UsePipes(new ZodValidationPipe(CreateJobInvitationSchema))
+  createJobInvitation(
+    @Req() req: JwtUserRequest,
+    @Body()
+    createJobInvitation: CreateJobInvitationDto,
+  ) {
+    return this.jobsService.createJobInvitation(
+      req.user.id,
+      createJobInvitation,
+    );
   }
 }
