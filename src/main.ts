@@ -1,9 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { hashSync } from 'bcryptjs';
+import { readFileSync } from 'fs';
 
 async function bootstrap() {
+  // const httpsOptions = {
+  //   key: readFileSync('./secrets/private-key.pem'),
+  //   cert: readFileSync('./secrets/public-certificate.pem'),
+  // };
+
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
