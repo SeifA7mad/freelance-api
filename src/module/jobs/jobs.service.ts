@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateJobInvitationDto } from './dto/create-job-invitation.dto';
@@ -152,10 +152,32 @@ export class JobsService {
     });
   }
 
-  createJobInvitation(
+  async createJobInvitation(
     clientId: string,
     createJobInvitationDto: CreateJobInvitationDto,
   ) {
+    const freelancerIdsMapped = createJobInvitationDto.freelancerIds.map(
+      (freelancer) => freelancer.freelancerId,
+    );
+
+    const foundFreelancerProposal = await this.prisma.proposal.findFirst({
+      where: {
+        jobId: createJobInvitationDto.jobId,
+        freelancerId: {
+          in: freelancerIdsMapped,
+        },
+      },
+      select: {
+        freelancerId: true,
+      },
+    });
+
+    if (foundFreelancerProposal) {
+      throw new ConflictException(
+        `${foundFreelancerProposal.freelancerId} has already submitted a proposal`,
+      );
+    }
+
     return this.prisma.job.update({
       where: {
         id_clientId: {
