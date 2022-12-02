@@ -6,10 +6,16 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './passport-strategy/jwt.strategy';
 import { JwtRefreshTokenStrategy } from './passport-strategy/jwtRefreshToken.strategy';
+import { GoogleStrategy } from './passport-strategy/google.strategy';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtRefreshTokenStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    JwtRefreshTokenStrategy,
+    GoogleStrategy,
+  ],
   imports: [
     PrismaModule,
     JwtModule.register({
@@ -18,7 +24,7 @@ import { JwtRefreshTokenStrategy } from './passport-strategy/jwtRefreshToken.str
         expiresIn: process.env.JWT_EXP_H,
       },
     }),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({ defaultStrategy: ['jwt', 'google'] }),
   ],
   exports: [AuthService],
 })

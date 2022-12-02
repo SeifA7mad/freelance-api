@@ -18,6 +18,8 @@ import {
 } from 'src/util/global-types';
 import { Get } from '@nestjs/common/decorators/http/request-mapping.decorator';
 import { RefreshTokenGuard } from 'src/guard/refresh-token.guard';
+import { GoogleOauthGuard } from 'src/guard/google-auth.guard';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -49,5 +51,15 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   refreshToken(@Req() req: JwtRefreshTokenUserRequest) {
     return this.authService.refreshTokens(req.user, req.user.refreshToken);
+  }
+
+  @Get('google')
+  @UseGuards(GoogleOauthGuard)
+  auth() {}
+
+  @Get('google/callback')
+  @UseGuards(GoogleOauthGuard)
+  googleAuthCallback(@Req() req) {
+    return req.user;
   }
 }
