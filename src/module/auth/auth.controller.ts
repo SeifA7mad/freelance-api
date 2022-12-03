@@ -6,7 +6,7 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
 import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
@@ -57,6 +57,7 @@ export class AuthController {
   @UseGuards(GoogleOauthGuard)
   auth() {}
 
+  @ApiExcludeEndpoint()
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
   googleAuthCallback(@Req() req) {
