@@ -1,6 +1,7 @@
 import { Module, CacheModule } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import * as redisStore from 'cache-manager-redis-store';
 
 // Controllers imports
 import { AppController } from './app.controller';
@@ -16,15 +17,16 @@ import { FreelancersModule } from './module/freelancers/freelancers.module';
 import { ClientsModule } from './module/clients/clients.module';
 import { AuthModule } from './module/auth/auth.module';
 import { SkillsModule } from './module/skills/skills.module';
-
-// Interceptor imports
-import { ErrorsInterceptor } from './interceptor/Errors.interceptor';
-import { TransformResponseInterceptor } from './interceptor/TransformResponse.interceptor';
 import { ProjectsModule } from './module/projects/projects.module';
 import { SocketsIoModule } from './gateway/sockets/Socketsio.module';
 import { JobsModule } from './module/jobs/jobs.module';
 import { ProposalsModule } from './module/proposals/proposals.module';
-import * as redisStore from 'cache-manager-redis-store';
+import { StripeModule } from './module/stripe/stripe.module';
+
+// Interceptor imports
+import { ErrorsInterceptor } from './interceptor/Errors.interceptor';
+import { TransformResponseInterceptor } from './interceptor/TransformResponse.interceptor';
+import { PaymentMethodsModule } from './module/payment-methods/payment-methods.module';
 
 @Module({
   imports: [
@@ -51,6 +53,8 @@ import * as redisStore from 'cache-manager-redis-store';
     SocketsIoModule,
     JobsModule,
     ProposalsModule,
+    StripeModule,
+    PaymentMethodsModule,
   ],
   controllers: [AppController],
   providers: [

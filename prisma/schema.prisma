@@ -34,8 +34,8 @@ model User {
   admin                      Admin?
   senderPaymentTransaction   PaymentTransaction[] @relation("TransactionFromUser")
   receiverPaymentTransaction PaymentTransaction[] @relation("TransactionToUser")
-  creditCards                CreditCardInfo[]
   chatMessages               ChatMessage[]
+  paymentMethods             PaymentMethod[]
 
   @@index([accountId])
 }
@@ -105,33 +105,51 @@ model FreelancerSkill {
 }
 
 model PaymentTransaction {
-  id          String                 @id @default(uuid())
-  date        DateTime               @default(now())
-  description String
-  amount      Float
-  type        PaymentTransactionType
-  senderId    String?
-  receiverId  String?
-  sender      User?                  @relation("TransactionFromUser", fields: [senderId], references: [id], onDelete: NoAction)
-  receiver    User?                  @relation("TransactionToUser", fields: [receiverId], references: [id], onDelete: NoAction)
+  id                    String                 @id @default(uuid())
+  date                  DateTime               @default(now())
+  description           String
+  amount                Float
+  type                  PaymentTransactionType
+  stripePaymentIntentId String?
+
+  senderId   String?
+  receiverId String?
+  sender     User?   @relation("TransactionFromUser", fields: [senderId], references: [id], onDelete: NoAction)
+  receiver   User?   @relation("TransactionToUser", fields: [receiverId], references: [id], onDelete: NoAction)
 
   @@index([senderId])
   @@index([receiverId])
 }
 
-model CreditCardInfo {
-  cardNumber     String   @id
-  holderName     String
-  expiryMonth    DateTime
-  expiryYear     DateTime
-  billingAddress String
-  userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model PaymentMethod {
+  id                    String            @id @default(uuid())
+  stripePaymentMethodId String            @unique
+  type                  PaymentMethodType
+  billingDetails        Json?
+
+  cardInfo CardInfo?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([id, userId])
+  @@index([userId])
+}
+
+model CardInfo {
+  cardNumber  String @id @default(uuid())
+  holderName  String
+  expiryMonth Int
+  expiryYear  Int
+  brand       String
+
+  paymentMethodId String        @unique
+  PaymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId])
+  @@index([paymentMethodId])
 }
 
 model Project {
@@ -386,4 +404,8 @@ enum PrivilegeType {
   READ
   WRITE
   MANAGE
+}
+
+enum PaymentMethodType {
+  CARD
 }

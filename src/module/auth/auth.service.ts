@@ -105,7 +105,7 @@ export class AuthService {
         id: userId,
       },
       include: {
-        creditCards: true,
+        paymentMethods: true,
         freelancer: includesFreelancer,
         client: true,
         admin: includesAdmin,
