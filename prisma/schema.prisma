@@ -18,26 +18,42 @@ model Account {
   user         User?
 }
 
+model Wallet {
+  id             String @id @default(uuid())
+  available      Float  @default(0.00)
+  pending        Float  @default(0.00)
+  inReview       Float  @default(0.00)
+  workInProgress Float  @default(0.00)
+
+  User User?
+}
+
 model User {
-  id                         String               @id @default(uuid())
-  firstName                  String
-  lastName                   String
-  bio                        String?
-  profilePicture             String?
-  timeZone                   DateTime
-  createdAt                  DateTime             @default(now())
-  updatedAt                  DateTime             @updatedAt
-  accountId                  String               @unique
-  account                    Account              @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  freelancer                 Freelancer?
-  client                     Client?
-  admin                      Admin?
+  id             String   @id @default(uuid())
+  firstName      String
+  lastName       String
+  bio            String?
+  profilePicture String?
+  timeZone       DateTime
+
+  accountId String  @unique
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  walletId  String  @unique
+  wallet    Wallet  @relation(fields: [walletId], references: [id])
+
+  freelancer Freelancer?
+  client     Client?
+  admin      Admin?
+
   senderPaymentTransaction   PaymentTransaction[] @relation("TransactionFromUser")
   receiverPaymentTransaction PaymentTransaction[] @relation("TransactionToUser")
   chatMessages               ChatMessage[]
   paymentMethods             PaymentMethod[]
 
-  @@index([accountId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([accountId, walletId])
 }
 
 model Freelancer {

@@ -33,6 +33,9 @@ export class ClientsService {
                 userName: accountData.userName,
               },
             },
+            wallet: {
+              create: {},
+            },
           },
         },
       },

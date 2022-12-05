@@ -42,6 +42,9 @@ export class FreelancersService {
                 userName: accountData.userName,
               },
             },
+            wallet: {
+              create: {},
+            },
           },
         },
       },

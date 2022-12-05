@@ -27,6 +27,7 @@ import { StripeModule } from './module/stripe/stripe.module';
 import { ErrorsInterceptor } from './interceptor/Errors.interceptor';
 import { TransformResponseInterceptor } from './interceptor/TransformResponse.interceptor';
 import { PaymentMethodsModule } from './module/payment-methods/payment-methods.module';
+import { WalletsModule } from './module/wallets/wallets.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { PaymentMethodsModule } from './module/payment-methods/payment-methods.m
     ProposalsModule,
     StripeModule,
     PaymentMethodsModule,
+    WalletsModule,
   ],
   controllers: [AppController],
   providers: [

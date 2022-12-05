@@ -18,7 +18,7 @@ import { PaymentMethodsService } from './payment-methods.service';
 
 // imports DTO's
 import { CreateCardPaymentMethodDto } from './dto/create-payment-method.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
 import { createCardPaymentMethodSchema } from './validation/create-card';
 
@@ -29,6 +29,7 @@ export class PaymentMethodsController {
 
   @Post('cards')
   @UseGuards(UserAuthGuard)
+  @ApiBearerAuth()
   @UsePipes(new ZodValidationPipe(createCardPaymentMethodSchema))
   createCardPaymentMethod(
     @Req() req: JwtUserRequest,
@@ -42,25 +43,22 @@ export class PaymentMethodsController {
 
   @Get()
   @UseGuards(UserAuthGuard)
+  @ApiBearerAuth()
   findAll(@Req() req: JwtUserRequest) {
     return this.paymentMethodsService.findAll(req.user.id);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.paymentMethodsService.findOne(+id);
+  @UseGuards(UserAuthGuard)
+  @ApiBearerAuth()
+  findOne(@Req() req: JwtUserRequest, @Param('id') id: string) {
+    return this.paymentMethodsService.findOne(id, req.user.id);
   }
 
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updatePaymentMethodDto: UpdatePaymentMethodDto,
-  // ) {
-  //   return this.paymentMethodsService.update(+id, updatePaymentMethodDto);
-  // }
-
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.paymentMethodsService.remove(+id);
+  @UseGuards(UserAuthGuard)
+  @ApiBearerAuth()
+  remove(@Req() req: JwtUserRequest, @Param('id') id: string) {
+    return this.paymentMethodsService.remove(id, req.user.id);
   }
 }

@@ -53,15 +53,28 @@ export class PaymentMethodsService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} paymentMethod`;
+  findOne(id: string, userId: string) {
+    return this.prisma.paymentMethod.findUnique({
+      where: {
+        id_userId: {
+          id: id,
+          userId: userId,
+        },
+      },
+      include: {
+        cardInfo: true,
+      },
+    });
   }
 
-  // update(id: number, updatePaymentMethodDto: UpdatePaymentMethodDto) {
-  //   return `This action updates a #${id} paymentMethod`;
-  // }
-
-  remove(id: number) {
-    return `This action removes a #${id} paymentMethod`;
+  remove(id: string, userId: string) {
+    return this.prisma.paymentMethod.delete({
+      where: {
+        id_userId: {
+          id: id,
+          userId: userId,
+        },
+      },
+    });
   }
 }
