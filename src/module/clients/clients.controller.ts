@@ -19,7 +19,7 @@ import { ReadPrivilege } from 'src/util/constants';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { FindAllQueryParamsDto } from './dto/findAll-client.dto';
-import { CreateClientSchema } from './validation/create-client';
+import { CreateClientSchema } from './validation/create-client.validation';
 
 @ApiTags('Client')
 @Controller('clients')

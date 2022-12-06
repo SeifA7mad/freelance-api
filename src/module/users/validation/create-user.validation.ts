@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { createUserWithAccountType } from '../dto/create-user.dto';
 import { InferKeys } from 'src/util/TypescriptUtils';
-import { CreateAccountSchema } from 'src/module/accounts/validation/create-account';
+import { CreateAccountSchema } from 'src/module/accounts/validation/create-account.validation';
 
 const schemaObj = InferKeys<createUserWithAccountType>({
   firstName: z.string(),

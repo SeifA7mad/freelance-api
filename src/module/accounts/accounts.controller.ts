@@ -21,7 +21,7 @@ import { UserAuthGuard } from 'src/guard/user-auth.guard';
 
 // Pipes imports
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
-import { UpdateAccountSchema } from './validation/update-account';
+import { UpdateAccountSchema } from './validation/update-account.validation';
 
 // Utils imports
 import { JwtUserRequest } from 'src/util/global-types';

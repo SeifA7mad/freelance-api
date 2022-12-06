@@ -15,10 +15,10 @@ import { CreateProposalDto } from './dto/create-proposal.dto';
 import { UpdateProposalDto } from './dto/update-proposal.dto';
 import { FreelancerAuthGuard } from 'src/guard/freelancer-auth.guard';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
-import { CreateProposalSchema } from './validation/create-proposal';
+import { CreateProposalSchema } from './validation/create-proposal.validation';
 import { JwtUserRequest } from 'src/util/global-types';
 import { ApiTags } from '@nestjs/swagger';
-import { UpdateProposalSchema } from './validation/update-proposal';
+import { UpdateProposalSchema } from './validation/update-proposal.validation';
 
 @ApiTags('Proposal')
 @Controller('proposals')

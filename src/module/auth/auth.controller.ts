@@ -10,7 +10,7 @@ import { ApiBearerAuth, ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
 import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import { AuthCredentialsSchema } from './validation/auth-credentials';
+import { AuthCredentialsSchema } from './validation/auth-credentials.validation';
 import { UserAuthGuard } from 'src/guard/user-auth.guard';
 import {
   JwtUserRequest,

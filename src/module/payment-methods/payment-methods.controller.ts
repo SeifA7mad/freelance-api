@@ -20,7 +20,7 @@ import { PaymentMethodsService } from './payment-methods.service';
 import { CreateCardPaymentMethodDto } from './dto/create-payment-method.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
-import { createCardPaymentMethodSchema } from './validation/create-card';
+import { createCardPaymentMethodSchema } from './validation/create-card.validation';
 
 @ApiTags('Payment Methods')
 @Controller('payment-methods')

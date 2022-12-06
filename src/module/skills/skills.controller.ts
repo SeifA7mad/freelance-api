@@ -22,7 +22,7 @@ import { AdminAuthGuard } from 'src/guard/admin-auth.guard';
 // Utils imports
 import { ManagePrivilege, WritePrivilege } from 'src/util/constants';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
-import { CreateSkillSchema } from './validation/create-skill';
+import { CreateSkillSchema } from './validation/create-skill.validation';
 import { UserAuthGuard } from 'src/guard/user-auth.guard';
 
 @ApiTags('Skill')

@@ -343,7 +343,6 @@ model Contract {
   startDate       DateTime       @default(now())
   endDate         DateTime?
   status          ContractStatus @default(INACTIVE)
-  link            String
   fundedPayment   Float
   receivedPayment Float
 

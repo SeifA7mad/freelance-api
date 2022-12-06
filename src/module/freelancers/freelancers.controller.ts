@@ -18,17 +18,17 @@ import { FreelancersService } from './freelancers.service';
 
 import { CreateFreelancerDto } from './dto/create-freelancer.dto';
 import { UpdateFreelancerDto } from './dto/update-freelancer.dto';
-import { CreateFreelancerSchema } from './validation/create-freelancer';
+import { CreateFreelancerSchema } from './validation/create-freelancer.validation';
 
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AdminAuthGuard } from 'src/guard/admin-auth.guard';
 import { ReadPrivilege } from 'src/util/constants';
 import { FreelancerAuthGuard } from 'src/guard/freelancer-auth.guard';
 import { JwtUserRequest } from 'src/util/global-types';
-import { UpdateFreelancerSchema } from './validation/update-freelancer';
+import { UpdateFreelancerSchema } from './validation/update-freelancer.validation';
 import { FindAllQueryParamsDto } from './dto/findAll-freelancer.dto';
 import { UpdateFreelancerSkillsDto } from './dto/update-skills.dto';
-import { UpdateFreelancerSkillsSchema } from './validation/update-freelancer-skills';
+import { UpdateFreelancerSkillsSchema } from './validation/update-freelancer-skills.validation';
 
 @ApiTags('Freelancer')
 @Controller('freelancers')

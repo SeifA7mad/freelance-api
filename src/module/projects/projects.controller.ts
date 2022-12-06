@@ -16,9 +16,9 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ClientAuthGuard } from 'src/guard/client-auth.guard';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
-import { CreateProjectSchema } from './validation/create-project';
+import { CreateProjectSchema } from './validation/create-project.validation';
 import { JwtUserRequest } from 'src/util/global-types';
-import { UpdateProjectSchema } from './validation/update-project';
+import { UpdateProjectSchema } from './validation/update-project.validation';
 import { AdminAuthGuard } from 'src/guard/admin-auth.guard';
 import { ReadPrivilege } from 'src/util/constants';
 

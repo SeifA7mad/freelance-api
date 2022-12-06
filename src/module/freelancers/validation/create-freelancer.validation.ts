@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { createFreelancerWithUserAccountType } from '../dto/create-freelancer.dto';
 import { JobCategory, ExperienceLevel } from '@prisma/client';
 import { InferKeys } from 'src/util/TypescriptUtils';
-import { CreateUserSchema } from 'src/module/users/validation/create-user';
+import { CreateUserSchema } from 'src/module/users/validation/create-user.validation';
 
 const schemaObj = InferKeys<createFreelancerWithUserAccountType>({
   experienceLevel: z.nativeEnum(ExperienceLevel),

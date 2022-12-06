@@ -19,11 +19,11 @@ import { UpdateJobDto } from './dto/update-job.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ClientAuthGuard } from 'src/guard/client-auth.guard';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
-import { CreateJobSchema } from './validation/create-job';
+import { CreateJobSchema } from './validation/create-job.validation';
 import { JwtUserRequest } from 'src/util/global-types';
-import { UpdateJobSchema } from './validation/update-job';
+import { UpdateJobSchema } from './validation/update-job.validation';
 import { CreateJobInvitationDto } from './dto/create-job-invitation.dto';
-import { CreateJobInvitationSchema } from './validation/create-job-invitation';
+import { CreateJobInvitationSchema } from './validation/create-job-invitation.validation';
 
 @ApiTags('Job')
 @UseInterceptors(CacheInterceptor)

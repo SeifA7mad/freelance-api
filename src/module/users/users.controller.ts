@@ -17,7 +17,7 @@ import { Query, ValidationPipe } from '@nestjs/common';
 
 import { UserAuthGuard } from 'src/guard/user-auth.guard';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
-import { UpdateUserSchema } from './validation/update-user';
+import { UpdateUserSchema } from './validation/update-user.validation';
 import { FindAllQueryParamsDto } from './dto/findAll-user.dto';
 
 @ApiTags('User')

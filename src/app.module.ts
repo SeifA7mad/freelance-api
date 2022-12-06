@@ -31,6 +31,7 @@ import { WalletsModule } from './module/wallets/wallets.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core/constants';
 import { ThrottlerGuard } from '@nestjs/throttler/dist/throttler.guard';
+import { ContractsModule } from './module/contracts/contracts.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { ThrottlerGuard } from '@nestjs/throttler/dist/throttler.guard';
     StripeModule,
     PaymentMethodsModule,
     WalletsModule,
+    ContractsModule,
   ],
   controllers: [AppController],
   providers: [
