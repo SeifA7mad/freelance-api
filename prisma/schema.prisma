@@ -343,8 +343,8 @@ model Contract {
   startDate       DateTime       @default(now())
   endDate         DateTime?
   status          ContractStatus @default(INACTIVE)
-  fundedPayment   Float
-  receivedPayment Float
+  fundedPayment   Float          @default(0.0)
+  receivedPayment Float          @default(0.0)
 
   projectId    String?    @unique
   project      Project?   @relation(fields: [projectId], references: [id], onDelete: Restrict)

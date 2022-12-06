@@ -12,6 +12,7 @@ type createPaymentMethodType = Prisma.PaymentMethodGetPayload<
 >;
 
 class CreatePaymentMethodDto implements createPaymentMethodType {
+  @ApiProperty({ enum: Object.values(PaymentMethodType) })
   type: PaymentMethodType;
 }
 

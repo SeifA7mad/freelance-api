@@ -14,11 +14,13 @@ export class ZodValidationPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
     const result = this.schema.safeParse(value);
     if (result.success === false) {
-      throw new BadRequestException(
-        result.error.issues.map(
-          (err) => `(${err.path[err.path.length - 1]}) ${err.message}`,
-        ),
-      );
+      const errs = [...result.error.formErrors.formErrors];
+
+      Object.keys(result.error.formErrors.fieldErrors).forEach((key) => {
+        errs.push(`(${key}) ${result.error.formErrors.fieldErrors[key]}`);
+      });
+
+      throw new BadRequestException(errs);
     }
     return value;
   }

@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { ContractStatus, Prisma } from '@prisma/client';
 
 const createContractArgs = Prisma.validator<Prisma.ContractArgs>()({
@@ -6,6 +7,7 @@ const createContractArgs = Prisma.validator<Prisma.ContractArgs>()({
     endDate: true,
     status: true,
     clientId: true,
+    freelancerId: true,
   },
 });
 
@@ -13,12 +15,12 @@ type CreateContractBaseType = Prisma.ContractGetPayload<
   typeof createContractArgs
 >;
 
-type CreateContract_JobType = CreateContractBaseType & {
+export type CreateContract_JobType = CreateContractBaseType & {
   jobId: string;
   projectId?: never;
 };
 
-type CreateContract_ProjectType = CreateContractBaseType & {
+export type CreateContract_ProjectType = CreateContractBaseType & {
   jobId?: never;
   projectId: string;
 };
@@ -29,8 +31,11 @@ export type CreateContractType =
 
 export class CreateContractDto implements CreateContractBaseType {
   startDate: Date;
+  @ApiProperty({ required: false })
   endDate: Date;
+  @ApiProperty({ enum: Object.values(ContractStatus) })
   status: ContractStatus;
+  freelancerId: string;
   clientId: string;
   jobId: string;
   projectId: string;
