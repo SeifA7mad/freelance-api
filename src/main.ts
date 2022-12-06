@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { readFileSync } from 'fs';
-import { hashSync } from 'bcryptjs';
+import helmet from 'helmet';
 
 async function bootstrap() {
   // const httpsOptions = {
@@ -10,7 +10,9 @@ async function bootstrap() {
   //   cert: readFileSync('./secrets/public-certificate.pem'),
   // };
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
+
+  app.use(helmet());
 
   const config = new DocumentBuilder()
     .setTitle('Freelance')

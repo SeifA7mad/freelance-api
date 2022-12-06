@@ -28,6 +28,9 @@ import { ErrorsInterceptor } from './interceptor/Errors.interceptor';
 import { TransformResponseInterceptor } from './interceptor/TransformResponse.interceptor';
 import { PaymentMethodsModule } from './module/payment-methods/payment-methods.module';
 import { WalletsModule } from './module/wallets/wallets.module';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core/constants';
+import { ThrottlerGuard } from '@nestjs/throttler/dist/throttler.guard';
 
 @Module({
   imports: [
@@ -42,6 +45,10 @@ import { WalletsModule } from './module/wallets/wallets.module';
       username: process.env.REDIS_USERNAME,
       password: process.env.REDIS_PASSWORD,
       no_ready_check: true,
+    }),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
     }),
     PrismaModule,
     UsersModule,
@@ -68,6 +75,10 @@ import { WalletsModule } from './module/wallets/wallets.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformResponseInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

@@ -9,6 +9,9 @@ import {
   UseGuards,
   UsePipes,
   Req,
+  UseInterceptors,
+  CacheInterceptor,
+  CacheTTL,
 } from '@nestjs/common';
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
@@ -23,6 +26,7 @@ import { CreateJobInvitationDto } from './dto/create-job-invitation.dto';
 import { CreateJobInvitationSchema } from './validation/create-job-invitation';
 
 @ApiTags('Job')
+@UseInterceptors(CacheInterceptor)
 @Controller('jobs')
 export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
