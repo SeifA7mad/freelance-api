@@ -6,8 +6,6 @@ const createContractArgs = Prisma.validator<Prisma.ContractArgs>()({
     startDate: true,
     endDate: true,
     status: true,
-    clientId: true,
-    freelancerId: true,
   },
 });
 
@@ -18,11 +16,13 @@ type CreateContractBaseType = Prisma.ContractGetPayload<
 export type CreateContract_JobType = CreateContractBaseType & {
   jobId: string;
   projectId?: never;
+  freelancerEmail: string;
 };
 
 export type CreateContract_ProjectType = CreateContractBaseType & {
   jobId?: never;
   projectId: string;
+  freelancerEmail: string;
 };
 
 export type CreateContractType =
@@ -35,7 +35,7 @@ export class CreateContractDto implements CreateContractBaseType {
   endDate: Date;
   @ApiProperty({ enum: Object.values(ContractStatus) })
   status: ContractStatus;
-  freelancerId: string;
+  freelancerEmail: string;
   clientId: string;
   jobId: string;
   projectId: string;

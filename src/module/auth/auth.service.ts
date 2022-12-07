@@ -9,6 +9,7 @@ import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { compare, hash } from 'bcryptjs';
 import { UserJwtPayload, UserType } from './dto/user-jwt-payload.interface';
 import { Account, User } from '@prisma/client';
+import { UserJwtRefreshRequestPayload } from 'src/util/global-types';
 
 @Injectable()
 export class AuthService {
@@ -175,7 +176,10 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(user: User & { account: Account }, refreshToken: string) {
+  async refreshTokens(
+    user: UserJwtRefreshRequestPayload,
+    refreshToken: string,
+  ) {
     const refreshTokenMatches = await compare(
       refreshToken,
       user.account.refreshToken,
@@ -187,7 +191,7 @@ export class AuthService {
       userId: user.id,
       email: user.account.email,
       username: user.account.userName,
-      userType: await this.getUserType(user.id),
+      userType: user.userType,
     };
 
     const { accessToken, refreshToken: newRefreshToken } = await this.getTokens(

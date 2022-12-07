@@ -19,7 +19,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
   }
 
   async validate(req: Request, payload: UserJwtPayload) {
-    const { userId, username, email } = payload;
+    const { userId, username, email, userType } = payload;
     const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
@@ -38,6 +38,6 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
 
     const refreshToken = req.get('Authorization').replace('Bearer', '').trim();
 
-    return { ...user, refreshToken };
+    return { ...user, refreshToken, userType };
   }
 }

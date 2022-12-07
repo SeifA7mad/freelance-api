@@ -16,8 +16,7 @@ const schemaJobObj = InferKeys<CreateContract_JobType>({
     }, z.date())
     .optional(),
   status: z.nativeEnum(ContractStatus),
-  clientId: z.string().uuid(),
-  freelancerId: z.string().uuid(),
+  freelancerEmail: z.string().email(),
   jobId: z.string().uuid(),
   projectId: z.undefined(),
 });
@@ -32,8 +31,7 @@ const schemaProjectObj = InferKeys<CreateContract_ProjectType>({
     }, z.date())
     .optional(),
   status: z.nativeEnum(ContractStatus),
-  clientId: z.string().uuid(),
-  freelancerId: z.string().uuid(),
+  freelancerEmail: z.string().email(),
   projectId: z.string().uuid(),
   jobId: z.undefined(),
 });
