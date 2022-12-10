@@ -3,16 +3,20 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UnauthorizedException } from '@nestjs/common/exceptions';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserJwtRequestPayload } from 'src/util/global-types';
 import { UserType } from '../auth/dto/user-jwt-payload.interface';
 import { CreateContractDto } from './dto/create-contract.dto';
-import { UpdateContractDto } from './dto/update-contract.dto';
 
 @Injectable()
 export class ContractsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private getUserFilterBasedOnType(userId: string, userType: UserType) {
+    return userType === UserType.CLIENT
+      ? { clientId: userId }
+      : { freelancerId: userId };
+  }
 
   async create(clientId: string, createContractDto: CreateContractDto) {
     if (createContractDto.projectId) {
@@ -49,7 +53,6 @@ export class ContractsService {
       data: {
         startDate: createContractDto.startDate,
         endDate: createContractDto.endDate,
-        status: createContractDto.status,
         client: {
           connect: {
             id: clientId,
@@ -81,17 +84,8 @@ export class ContractsService {
   }
 
   findAll(user: UserJwtRequestPayload) {
-    if (user.userType === UserType.ADMIN) {
-      throw new UnauthorizedException('Admin have no contracts');
-    }
-
-    const whereCond =
-      user.userType === UserType.CLIENT
-        ? { clientId: user.id }
-        : { freelancerId: user.id };
-
     return this.prisma.contract.findMany({
-      where: whereCond,
+      where: this.getUserFilterBasedOnType(user.id, user.userType),
       include: {
         job: true,
         project: true,
@@ -99,15 +93,50 @@ export class ContractsService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} contract`;
+  findOne(id: string, user: UserJwtRequestPayload) {
+    return this.prisma.contract.findMany({
+      where: {
+        id: id,
+        ...this.getUserFilterBasedOnType(user.id, user.userType),
+      },
+      include: {
+        job: true,
+        project: true,
+        feedbacks: true,
+        millestones: true,
+        attachments: true,
+        activities: true,
+      },
+    });
   }
 
-  update(id: number, updateContractDto: UpdateContractDto) {
-    return `This action updates a #${id} contract`;
+  acceptContract(id: string, freelancerId: string) {
+    return this.prisma.contract.update({
+      where: {
+        id_freelancerId_status: {
+          id: id,
+          freelancerId: freelancerId,
+          status: 'INACTIVE',
+        },
+      },
+      data: {
+        status: 'ACTIVE',
+      },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} contract`;
+  endContract(id: string, clientId: string) {
+    return this.prisma.contract.update({
+      where: {
+        id_clientId_status: {
+          id: id,
+          clientId: clientId,
+          status: 'ACTIVE',
+        },
+      },
+      data: {
+        status: 'COMPLETED',
+      },
+    });
   }
 }

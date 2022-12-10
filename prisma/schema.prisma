@@ -364,6 +364,10 @@ model Contract {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([id, freelancerId])
+  @@unique([id, freelancerId, status])
+  @@unique([id, clientId])
+  @@unique([id, clientId, status])
   @@index([projectId])
   @@index([freelancerId])
   @@index([clientId])

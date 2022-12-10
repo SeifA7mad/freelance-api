@@ -16,11 +16,11 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ClientAuthGuard } from 'src/guard/client-auth.guard';
 import { FreelancerAuthGuard } from 'src/guard/freelancer-auth.guard';
 import { UserAuthGuard } from 'src/guard/user-auth.guard';
+import { UserExceptAdminAuthGuard } from 'src/guard/user-except-admin-auth.guard';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationPipe';
 import { JwtUserRequest } from 'src/util/global-types';
 import { ContractsService } from './contracts.service';
 import { CreateContractDto } from './dto/create-contract.dto';
-import { UpdateContractDto } from './dto/update-contract.dto';
 import { CreateContractSchema } from './validation/create-contract.validation';
 @ApiTags('Contract')
 @UseInterceptors(CacheInterceptor)
@@ -41,26 +41,29 @@ export class ContractsController {
 
   @Get()
   @ApiBearerAuth()
-  @UseGuards(UserAuthGuard)
+  @UseGuards(UserExceptAdminAuthGuard)
   findAll(@Req() req: JwtUserRequest) {
     return this.contractsService.findAll(req.user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.contractsService.findOne(+id);
+  @ApiBearerAuth()
+  @UseGuards(UserExceptAdminAuthGuard)
+  findOne(@Param('id') id: string, @Req() req: JwtUserRequest) {
+    return this.contractsService.findOne(id, req.user);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateContractDto: UpdateContractDto,
-  ) {
-    return this.contractsService.update(+id, updateContractDto);
+  @Patch('accept/:id')
+  @ApiBearerAuth()
+  @UseGuards(FreelancerAuthGuard)
+  acceptContract(@Param('id') id: string, @Req() req: JwtUserRequest) {
+    return this.contractsService.acceptContract(id, req.user.id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.contractsService.remove(+id);
+  @Patch('end/:id')
+  @ApiBearerAuth()
+  @UseGuards(ClientAuthGuard)
+  endContract(@Param('id') id: string, @Req() req: JwtUserRequest) {
+    return this.contractsService.endContract(id, req.user.id);
   }
 }

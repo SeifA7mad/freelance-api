@@ -1,4 +1,3 @@
-import { ContractStatus } from '@prisma/client';
 import { InferKeys } from 'src/util/TypescriptUtils';
 import { z } from 'zod';
 import {
@@ -15,7 +14,6 @@ const schemaJobObj = InferKeys<CreateContract_JobType>({
       if (typeof arg == 'string' || arg instanceof Date) return new Date(arg);
     }, z.date())
     .optional(),
-  status: z.nativeEnum(ContractStatus),
   freelancerEmail: z.string().email(),
   jobId: z.string().uuid(),
   projectId: z.undefined(),
@@ -30,7 +28,6 @@ const schemaProjectObj = InferKeys<CreateContract_ProjectType>({
       if (typeof arg == 'string' || arg instanceof Date) return new Date(arg);
     }, z.date())
     .optional(),
-  status: z.nativeEnum(ContractStatus),
   freelancerEmail: z.string().email(),
   projectId: z.string().uuid(),
   jobId: z.undefined(),
