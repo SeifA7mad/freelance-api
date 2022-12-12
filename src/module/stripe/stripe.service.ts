@@ -23,6 +23,12 @@ export class StripeService {
     return this.stripe.paymentMethods.create(paymentMethodParams);
   }
 
+  attachPaymentMethod(paymentMethodId: string, customerId: string) {
+    return this.stripe.paymentMethods.attach(paymentMethodId, {
+      customer: customerId,
+    });
+  }
+
   detachPaymentMethod(paymentMethodId: string) {
     return this.stripe.paymentMethods.detach(paymentMethodId);
   }

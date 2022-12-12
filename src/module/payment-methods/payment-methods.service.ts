@@ -47,7 +47,7 @@ export class PaymentMethodsService {
         },
       });
 
-      this.prisma.user.update({
+      await this.prisma.user.update({
         where: {
           id: user.id,
         },
@@ -136,7 +136,9 @@ export class PaymentMethodsService {
       },
     });
 
-    this.stripe.detachPaymentMethod(deletedPaymentMethod.stripePaymentMethodId);
+    await this.stripe.detachPaymentMethod(
+      deletedPaymentMethod.stripePaymentMethodId,
+    );
     return deletedPaymentMethod;
   }
 }
