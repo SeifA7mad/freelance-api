@@ -5,6 +5,6 @@ import { SocketsIoGateway } from './Socketsio.gateway';
 @Module({
   providers: [SocketsIoGateway],
   imports: [AuthModule],
-  exports: [SocketsIoModule],
+  exports: [SocketsIoGateway],
 })
 export class SocketsIoModule {}

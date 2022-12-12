@@ -11,8 +11,20 @@ export class StripeService {
     });
   }
 
+  createCustomer(customerParams: Stripe.CustomerCreateParams) {
+    return this.stripe.customers.create(customerParams);
+  }
+
+  deleteCustomer(customerId: string) {
+    return this.stripe.customers.del(customerId);
+  }
+
   createPaymentMethod(paymentMethodParams: Stripe.PaymentMethodCreateParams) {
     return this.stripe.paymentMethods.create(paymentMethodParams);
+  }
+
+  detachPaymentMethod(paymentMethodId: string) {
+    return this.stripe.paymentMethods.detach(paymentMethodId);
   }
 
   getPaymentMethod(

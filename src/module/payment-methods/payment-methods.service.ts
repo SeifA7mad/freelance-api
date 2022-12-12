@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { PaymentMethodType, Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { decryptData, encryptData } from 'src/util/crypto';
+import {
+  EncryptedStoredData,
+  UserJwtRequestPayload,
+} from 'src/util/global-types';
 import { StripeService } from '../stripe/stripe.service';
 import { CreateCardPaymentMethodDto } from './dto/create-payment-method.dto';
 
@@ -7,16 +13,21 @@ import { CreateCardPaymentMethodDto } from './dto/create-payment-method.dto';
 export class PaymentMethodsService {
   constructor(
     private prisma: PrismaService,
-    private readonly stripeService: StripeService,
+    private readonly stripe: StripeService,
   ) {}
 
   async createCardMethod(
     createCardPaymentMethodDto: CreateCardPaymentMethodDto,
-    userId: string,
+    user: UserJwtRequestPayload,
   ) {
     const { type, cvv, ...cardInfo } = createCardPaymentMethodDto;
 
-    const stripePaymentMethod = await this.stripeService.createPaymentMethod({
+    const [encryptedCardNumber, encryptedCardName] = await Promise.all([
+      encryptData(cardInfo.cardNumber),
+      encryptData(cardInfo.holderName),
+    ]);
+
+    const stripePaymentMethod = await this.stripe.createPaymentMethod({
       type: 'card',
       card: {
         number: cardInfo.cardNumber,
@@ -26,17 +37,43 @@ export class PaymentMethodsService {
       },
     });
 
+    if (!user.stripeCustomerId) {
+      const stripeCustomer = await this.stripe.createCustomer({
+        name: user.firstName,
+        email: user.account.email,
+        metadata: {
+          id: user.id,
+          userType: user.userType,
+        },
+      });
+
+      this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          stripeCustomerId: stripeCustomer.id,
+        },
+      });
+    }
+
     return this.prisma.paymentMethod.create({
       data: {
         type: type,
         stripePaymentMethodId: stripePaymentMethod.id,
         user: {
           connect: {
-            id: userId,
+            id: user.id,
           },
         },
         cardInfo: {
-          create: cardInfo,
+          create: {
+            cardNumber: encryptedCardNumber,
+            holderName: encryptedCardName,
+            expiryMonth: cardInfo.expiryMonth,
+            expiryYear: cardInfo.expiryYear,
+            brand: cardInfo.brand,
+          },
         },
       },
     });
@@ -48,13 +85,17 @@ export class PaymentMethodsService {
         userId: userId,
       },
       include: {
-        cardInfo: true,
+        cardInfo: {
+          select: {
+            brand: true,
+          },
+        },
       },
     });
   }
 
-  findOne(id: string, userId: string) {
-    return this.prisma.paymentMethod.findUnique({
+  async findOne(id: string, userId: string) {
+    const paymentMethodData = await this.prisma.paymentMethod.findUnique({
       where: {
         id_userId: {
           id: id,
@@ -65,10 +106,28 @@ export class PaymentMethodsService {
         cardInfo: true,
       },
     });
+
+    if (paymentMethodData.type === PaymentMethodType.CARD) {
+      const { cardNumber: cardNumberJson, holderName: holderNameJson } =
+        paymentMethodData.cardInfo;
+
+      const cardNumberData = cardNumberJson as EncryptedStoredData;
+      const holderNameData = holderNameJson as EncryptedStoredData;
+
+      const [decryptedCardNumber, decryptedHolderName] = await Promise.all([
+        decryptData(cardNumberData.data, Buffer.from(cardNumberData.iv.data)),
+        decryptData(holderNameData.data, Buffer.from(holderNameData.iv.data)),
+      ]);
+
+      paymentMethodData.cardInfo.cardNumber = decryptedCardNumber.slice(-4);
+      paymentMethodData.cardInfo.holderName = decryptedHolderName;
+    }
+
+    return paymentMethodData;
   }
 
-  remove(id: string, userId: string) {
-    return this.prisma.paymentMethod.delete({
+  async remove(id: string, userId: string) {
+    const deletedPaymentMethod = await this.prisma.paymentMethod.delete({
       where: {
         id_userId: {
           id: id,
@@ -76,5 +135,8 @@ export class PaymentMethodsService {
         },
       },
     });
+
+    this.stripe.detachPaymentMethod(deletedPaymentMethod.stripePaymentMethodId);
+    return deletedPaymentMethod;
   }
 }

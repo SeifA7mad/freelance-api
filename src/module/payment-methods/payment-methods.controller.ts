@@ -37,7 +37,7 @@ export class PaymentMethodsController {
   ) {
     return this.paymentMethodsService.createCardMethod(
       createCardPaymentMethodDto,
-      req.user.id,
+      req.user,
     );
   }
 

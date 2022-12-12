@@ -29,12 +29,13 @@ model Wallet {
 }
 
 model User {
-  id             String   @id @default(uuid())
-  firstName      String
-  lastName       String
-  bio            String?
-  profilePicture String?
-  timeZone       DateTime
+  id               String   @id @default(uuid())
+  firstName        String
+  lastName         String
+  bio              String?
+  profilePicture   String?
+  timeZone         DateTime
+  stripeCustomerId String?
 
   accountId String  @unique
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
@@ -45,8 +46,8 @@ model User {
   client     Client?
   admin      Admin?
 
-  senderPaymentTransaction   PaymentTransaction[] @relation("TransactionFromUser")
-  receiverPaymentTransaction PaymentTransaction[] @relation("TransactionToUser")
+  receivedPaymentTransaction PaymentTransaction[] @relation("TransactionToUser")
+  sendedPaymentTransaction   PaymentTransaction[] @relation("TransactionFromUser")
   chatMessages               ChatMessage[]
   paymentMethods             PaymentMethod[]
 
@@ -153,8 +154,9 @@ model PaymentMethod {
 }
 
 model CardInfo {
-  cardNumber  String @id @default(uuid())
-  holderName  String
+  id          String @id @default(uuid())
+  cardNumber  Json
+  holderName  Json
   expiryMonth Int
   expiryYear  Int
   brand       String

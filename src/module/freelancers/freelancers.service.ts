@@ -13,7 +13,7 @@ import { UpdateFreelancerSkillsDto } from './dto/update-skills.dto';
 
 @Injectable()
 export class FreelancersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createFreelancerDto: CreateFreelancerDto) {
     const { user: userData, ...freelancerData } = createFreelancerDto;

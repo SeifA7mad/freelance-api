@@ -19,6 +19,7 @@ export class ContractsService {
   }
 
   async create(clientId: string, createContractDto: CreateContractDto) {
+    // Check if the provided project is linked to a job or not
     if (createContractDto.projectId) {
       const jobLinkedToProject = await this.prisma.job.findUnique({
         where: {
@@ -28,11 +29,12 @@ export class ContractsService {
 
       if (jobLinkedToProject) {
         throw new ConflictException(
-          'This Project is linked to job please provide the job instead',
+          'This Project is linked to a job please provide the job instead',
         );
       }
     }
 
+    // get freelancer by his email
     const freelancer = await this.prisma.freelancer.findFirst({
       where: {
         user: {
@@ -43,6 +45,7 @@ export class ContractsService {
       },
     });
 
+    // throw error if no freelancer found
     if (!freelancer) {
       throw new NotFoundException(
         'No freelancer found with provided email address',

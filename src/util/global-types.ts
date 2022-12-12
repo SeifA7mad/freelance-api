@@ -23,3 +23,8 @@ export type UserJwtRefreshRequestPayload = User & {
 export type JwtRefreshTokenUserRequest = Request & {
   user: UserJwtRefreshRequestPayload;
 };
+
+export type EncryptedStoredData = {
+  data: string;
+  iv: { data: number[]; type: string };
+};
