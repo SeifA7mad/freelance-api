@@ -22,6 +22,8 @@ import { JwtUserRequest } from 'src/util/global-types';
 import { ContractsService } from './contracts.service';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { CreateContractSchema } from './validation/create-contract.validation';
+import { AddFundsDto } from './dto/add-funds.dto';
+import { AddFundsSchema } from './validation/add-funds.validation';
 @ApiTags('Contract')
 @UseInterceptors(CacheInterceptor)
 @Controller('contracts')
@@ -65,5 +67,16 @@ export class ContractsController {
   @UseGuards(ClientAuthGuard)
   endContract(@Param('id') id: string, @Req() req: JwtUserRequest) {
     return this.contractsService.endContract(id, req.user.id);
+  }
+
+  @Patch('add-funds/:id')
+  @ApiBearerAuth()
+  @UseGuards(ClientAuthGuard)
+  addFunds(
+    @Param('id') id: string,
+    @Req() req: JwtUserRequest,
+    @Body(new ZodValidationPipe(AddFundsSchema)) addFundsDto: AddFundsDto,
+  ) {
+    return this.contractsService.addFunds(id, req.user.id, addFundsDto);
   }
 }

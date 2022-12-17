@@ -74,6 +74,9 @@ export class WalletsService {
           },
         },
       },
+      include: {
+        wallet: true,
+      },
     });
   }
 }

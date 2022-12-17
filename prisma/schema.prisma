@@ -307,15 +307,15 @@ model ContractFeedback {
   @@index([contractId])
 }
 
-model Millestone {
-  id          String           @id @default(uuid())
+model Milestone {
+  id          String          @id @default(uuid())
   name        String
   amount      Float
   dueDate     DateTime?
-  description String?          @db.LongText
-  status      MillestoneStatus @default(PENDING)
+  description String?         @db.LongText
+  status      MilestoneStatus @default(PENDING)
   contractId  String
-  contract    Contract         @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contract    Contract        @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -346,6 +346,7 @@ model Contract {
   endDate         DateTime?
   status          ContractStatus @default(INACTIVE)
   fundedPayment   Float          @default(0.0)
+  inEscrowPayment Float          @default(0.0)
   receivedPayment Float          @default(0.0)
 
   projectId    String?    @unique
@@ -360,7 +361,7 @@ model Contract {
   attachments  ContractAttachments[]
   activities   ContractActivities[]
   feedbacks    ContractFeedback[]
-  millestones  Millestone[]
+  milestones   Milestone[]
   chatMessages ChatMessage[]
 
   createdAt DateTime @default(now())
@@ -414,7 +415,7 @@ enum ContractStatus {
   INACTIVE
 }
 
-enum MillestoneStatus {
+enum MilestoneStatus {
   PENDING
   INPROGRESS
   FULFILLED

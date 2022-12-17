@@ -2,11 +2,13 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserJwtRequestPayload } from 'src/util/global-types';
 import { UserType } from '../auth/dto/user-jwt-payload.interface';
 import { CreateContractDto } from './dto/create-contract.dto';
+import { AddFundsDto } from './dto/add-funds.dto';
 
 @Injectable()
 export class ContractsService {
@@ -106,7 +108,7 @@ export class ContractsService {
         job: true,
         project: true,
         feedbacks: true,
-        millestones: true,
+        milestones: true,
         attachments: true,
         activities: true,
       },
@@ -141,5 +143,63 @@ export class ContractsService {
         status: 'COMPLETED',
       },
     });
+  }
+
+  async addFunds(id: string, clientId: string, addFundsDto: AddFundsDto) {
+    const { amount } = addFundsDto;
+
+    // get the wallet for the client
+    const { wallet: clientWallet } = await this.prisma.user.findUnique({
+      where: {
+        id: clientId,
+      },
+      select: {
+        wallet: {
+          select: {
+            available: true,
+          },
+        },
+      },
+    });
+
+    // check if the client has a sufficient amount in his wallet or not
+    if (amount > clientWallet.available) {
+      throw new BadRequestException(
+        'Client has insufficient amount in his wallet please deposit the required amount',
+      );
+    }
+
+    // update the contract with the new funded amount
+    const updatedContract = await this.prisma.contract.update({
+      where: {
+        id_clientId: {
+          id: id,
+          clientId: clientId,
+        },
+      },
+      data: {
+        fundedPayment: {
+          increment: amount,
+        },
+      },
+    });
+
+    // update the client wallet to reduce the available amount
+    await this.prisma.user.update({
+      where: {
+        id: clientId,
+      },
+      data: {
+        wallet: {
+          update: {
+            available: {
+              decrement: amount,
+            },
+          },
+        },
+      },
+    });
+
+    return updatedContract;
   }
 }
