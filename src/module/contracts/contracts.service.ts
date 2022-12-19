@@ -5,20 +5,16 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserJwtRequestPayload } from 'src/util/global-types';
-import { UserType } from '../auth/dto/user-jwt-payload.interface';
+import {
+  UserJwtRequestPayload,
+  getUserFilterBasedOnType,
+} from 'src/util/global-types';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { AddFundsDto } from './dto/add-funds.dto';
 
 @Injectable()
 export class ContractsService {
   constructor(private readonly prisma: PrismaService) {}
-
-  private getUserFilterBasedOnType(userId: string, userType: UserType) {
-    return userType === UserType.CLIENT
-      ? { clientId: userId }
-      : { freelancerId: userId };
-  }
 
   async create(clientId: string, createContractDto: CreateContractDto) {
     // Check if the provided project is linked to a job or not
@@ -90,7 +86,7 @@ export class ContractsService {
 
   findAll(user: UserJwtRequestPayload) {
     return this.prisma.contract.findMany({
-      where: this.getUserFilterBasedOnType(user.id, user.userType),
+      where: getUserFilterBasedOnType(user.id, user.userType),
       include: {
         job: true,
         project: true,
@@ -102,7 +98,7 @@ export class ContractsService {
     return this.prisma.contract.findMany({
       where: {
         id: id,
-        ...this.getUserFilterBasedOnType(user.id, user.userType),
+        ...getUserFilterBasedOnType(user.id, user.userType),
       },
       include: {
         job: true,

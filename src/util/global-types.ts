@@ -28,3 +28,12 @@ export type EncryptedStoredData = {
   data: string;
   iv: { data: number[]; type: string };
 };
+
+export const getUserFilterBasedOnType = (
+  userId: string,
+  userType: UserType,
+) => {
+  return userType === UserType.CLIENT
+    ? { clientId: userId }
+    : { freelancerId: userId };
+};
