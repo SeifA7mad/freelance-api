@@ -13,6 +13,7 @@ import {
   UserJwtRequestPayload,
   getUserFilterBasedOnType,
 } from 'src/util/global-types';
+import { MilestoneSubmissionDto } from './dto/submit-milestone.dto';
 
 @Injectable()
 export class MilestonesService {
@@ -80,6 +81,9 @@ export class MilestonesService {
           ...getUserFilterBasedOnType(user.id, user.userType),
         },
       },
+      include: {
+        submission: true,
+      },
     });
   }
 
@@ -89,7 +93,7 @@ export class MilestonesService {
       where: {
         id: id,
         status: {
-          not: 'PENDING',
+          not: MilestoneStatus.PENDING,
         },
       },
     });
@@ -112,6 +116,7 @@ export class MilestonesService {
     return `This action removes a #${id} milestone`;
   }
 
+  // Client activate a milestone
   async activate(id: string, clientId: string) {
     // retrieve milestone to check it's status and get the contractId
     const milestone = await this.prisma.milestone.findFirst({
@@ -177,7 +182,7 @@ export class MilestonesService {
           id: milestone.id,
         },
         data: {
-          status: 'INPROGRESS',
+          status: MilestoneStatus.INPROGRESS,
         },
       }),
       // update contract by decrementing the funded amount and increasing the inEscrow amount
@@ -203,6 +208,144 @@ export class MilestonesService {
           wallet: {
             update: {
               workInProgress: {
+                increment: milestone.amount,
+              },
+            },
+          },
+        },
+      }),
+    ]);
+
+    return updatedMilestone;
+  }
+
+  // Freelancer submit work to the milestones
+  async submit(
+    id: string,
+    freelancerId: string,
+    milestoneSubmissionDto: MilestoneSubmissionDto,
+  ) {
+    // retrieve milestone to check it's status and get the contractId
+    const milestone = await this.prisma.milestone.findFirst({
+      where: {
+        id: id,
+        contract: {
+          freelancerId: freelancerId,
+        },
+      },
+    });
+
+    // checks if the milestone exist for the current freelancer
+    if (!milestone) {
+      throw new NotFoundException(
+        'No such a milestone found with the given id and the logged in freelancer',
+      );
+    }
+
+    // checks if it's not INPROGRESS
+    if (milestone.status !== MilestoneStatus.INPROGRESS) {
+      throw new ConflictException(
+        `The milestone is ${milestone.status} can't submit to it unless it's still INPROGRESS`,
+      );
+    }
+
+    const [updatedMilestone] = await this.prisma.$transaction([
+      // update milestone status to be INREVIEW and add the submission
+      this.prisma.milestone.update({
+        where: {
+          id: id,
+        },
+        data: {
+          status: MilestoneStatus.INREVIEW,
+          submission: {
+            create: milestoneSubmissionDto,
+          },
+        },
+      }),
+      // update the freelancer wallet decrement workInProgress balance an increment inReview balance
+      this.prisma.user.update({
+        where: {
+          id: freelancerId,
+        },
+        data: {
+          wallet: {
+            update: {
+              workInProgress: {
+                decrement: milestone.amount,
+              },
+              inReview: {
+                increment: milestone.amount,
+              },
+            },
+          },
+        },
+      }),
+    ]);
+
+    return updatedMilestone;
+  }
+
+  async acceptSubmission(id: string, clientId: string) {
+    // retrieve milestone to check it's status and get the contractId
+    const milestone = await this.prisma.milestone.findFirst({
+      where: {
+        id: id,
+        contract: {
+          clientId: clientId,
+        },
+      },
+      include: {
+        contract: {
+          select: {
+            freelancerId: true,
+          },
+        },
+      },
+    });
+
+    // checks if it's not INREVIEW
+    if (milestone.status !== MilestoneStatus.INREVIEW) {
+      throw new ConflictException(
+        `The milestone is ${milestone.status} can't be released unless it's INREVIEW`,
+      );
+    }
+
+    const [updatedMilestone] = await this.prisma.$transaction([
+      // update milestone status = INPROGRESS
+      this.prisma.milestone.update({
+        where: {
+          id: milestone.id,
+        },
+        data: {
+          status: MilestoneStatus.FULFILLED,
+        },
+      }),
+      // update contract by decrementing the inEscrow amount and increasing the received amount
+      this.prisma.contract.update({
+        where: {
+          id: milestone.contractId,
+        },
+        data: {
+          inEscrowPayment: {
+            decrement: milestone.amount,
+          },
+          receivedPayment: {
+            increment: milestone.amount,
+          },
+        },
+      }),
+      // update the freelancer wallet decrement inReview balance an increment available balance
+      this.prisma.user.update({
+        where: {
+          id: milestone.contract.freelancerId,
+        },
+        data: {
+          wallet: {
+            update: {
+              inReview: {
+                decrement: milestone.amount,
+              },
+              available: {
                 increment: milestone.amount,
               },
             },

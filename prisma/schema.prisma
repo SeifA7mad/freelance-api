@@ -307,15 +307,27 @@ model ContractFeedback {
   @@index([contractId])
 }
 
+model MilestoneSubmission {
+  id          String  @id @default(uuid())
+  description String
+  attachment  String?
+
+  milestoneId String    @unique
+  milesotne   Milestone @relation(fields: [milestoneId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
 model Milestone {
-  id          String          @id @default(uuid())
+  id          String               @id @default(uuid())
   name        String
   amount      Float
   dueDate     DateTime?
-  description String?         @db.LongText
-  status      MilestoneStatus @default(PENDING)
+  description String?              @db.LongText
+  status      MilestoneStatus      @default(PENDING)
+  submission  MilestoneSubmission?
   contractId  String
-  contract    Contract        @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contract    Contract             @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

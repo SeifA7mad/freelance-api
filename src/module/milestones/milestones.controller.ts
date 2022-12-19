@@ -18,6 +18,9 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateMilestoneSchema } from './validation/create-milestone.validation';
 import { UserExceptAdminAuthGuard } from 'src/guard/user-except-admin-auth.guard';
 import { JwtUserRequest } from 'src/util/global-types';
+import { FreelancerAuthGuard } from 'src/guard/freelancer-auth.guard';
+import { MilestoneSubmissionDto } from './dto/submit-milestone.dto';
+import { MilestoneSubmissionSchema } from './validation/submit-milestone.validation';
 
 @ApiTags('Milestone')
 @Controller('milestones')
@@ -59,6 +62,22 @@ export class MilestonesController {
   @Patch('activate/:id')
   activate(@Param('id') id: string, @Req() req: JwtUserRequest) {
     return this.milestonesService.activate(id, req.user.id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(FreelancerAuthGuard)
+  @Patch('submit/:id')
+  submit(
+    @Param('id') id: string,
+    @Req() req: JwtUserRequest,
+    @Body(new ZodValidationPipe(MilestoneSubmissionSchema))
+    milestoneSubmissionDto: MilestoneSubmissionDto,
+  ) {
+    return this.milestonesService.submit(
+      id,
+      req.user.id,
+      milestoneSubmissionDto,
+    );
   }
 
   @Delete(':id')
