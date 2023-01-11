@@ -26,6 +26,22 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+A Freelance REST-API mocking up the Upwork company Freelance busniss logic. (STILL IN PROGRESS)
+The API deals with 3 main users (ADMIN, CLIENT, FREELANCER) with a Wallet system, the Authentication and Authorization is impmlmented using JWT tokens.
+The API include many complex logic and endpoints to handle each different user request and secure the data and reduce the risk of manuplating the secured data.
+The API is implmented following the best practices.
+
+## Technologies:
+1. Nestjs.
+2. Prisma with PlaneScale (SQL server)
+3. Passport authentication.
+4. Stripe API (Payment Gateway Integration)
+5. Socketio and Redis.
+6. ZOD validation
+7. Google Oauth2
+8. Crypto Encryption/Decryption for Payment method details in DB.
+9. Swagger for documentation builder.
+
 ## Installation
 
 ```bash
