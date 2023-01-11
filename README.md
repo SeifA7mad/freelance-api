@@ -26,10 +26,7 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-A Freelance REST-API mocking up the Upwork company Freelance busniss logic. (STILL IN PROGRESS)
-The API deals with 3 main users (ADMIN, CLIENT, FREELANCER) with a Wallet system, the Authentication and Authorization is impmlmented using JWT tokens.
-The API include many complex logic and endpoints to handle each different user request and secure the data and reduce the risk of manuplating the secured data.
-The API is implmented following the best practices.
+A Freelance REST-API mocking up the Upwork company Freelance business logic. (STILL IN PROGRESS) The API deals with 3 main users (ADMIN, CLIENT, FREELANCER) with a Wallet system, Authentication and Authorization are implemented using JWT tokens. The API includes many complex logic and endpoints to handle each different user request and secure the data and reduce the risk of manipulating the secured data. The API is implemented following the best practices.
 
 ## Technologies:
 1. Nestjs.
