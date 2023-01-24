@@ -33,6 +33,8 @@ import { APP_GUARD } from '@nestjs/core/constants';
 import { ThrottlerGuard } from '@nestjs/throttler/dist/throttler.guard';
 import { ContractsModule } from './module/contracts/contracts.module';
 import { MilestonesModule } from './module/milestones/milestones.module';
+import { ChatRoomsGateway } from './gateway/chat-rooms/chat-rooms.gateway';
+import { ChatRoomsModule } from './gateway/chat-rooms/chat-rooms.module';
 
 @Module({
   imports: [
@@ -68,6 +70,7 @@ import { MilestonesModule } from './module/milestones/milestones.module';
     WalletsModule,
     ContractsModule,
     MilestonesModule,
+    ChatRoomsModule,
   ],
   controllers: [AppController],
   providers: [

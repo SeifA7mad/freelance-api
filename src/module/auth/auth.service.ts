@@ -208,10 +208,12 @@ export class AuthService {
 
   async getUserPayload(jwtToken: string) {
     try {
-      const userPayload = await this.jwtService.verifyAsync(jwtToken);
+      const userPayload: UserJwtPayload = await this.jwtService.verifyAsync(
+        jwtToken,
+      );
       return userPayload;
     } catch (err) {
-      return null;
+      throw err;
     }
   }
 }

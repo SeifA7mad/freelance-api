@@ -11,6 +11,7 @@ import {
 } from 'src/util/global-types';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { AddFundsDto } from './dto/add-funds.dto';
+import { UserType } from '../auth/dto/user-jwt-payload.interface';
 
 @Injectable()
 export class ContractsService {
@@ -94,6 +95,15 @@ export class ContractsService {
     });
   }
 
+  getAllContractIds(userId: string, userType: UserType) {
+    return this.prisma.contract.findMany({
+      where: getUserFilterBasedOnType(userId, userType),
+      select: {
+        id: true,
+      },
+    });
+  }
+
   findOne(id: string, user: UserJwtRequestPayload) {
     return this.prisma.contract.findMany({
       where: {
@@ -166,35 +176,36 @@ export class ContractsService {
     }
 
     // update the contract with the new funded amount
-    const updatedContract = await this.prisma.contract.update({
-      where: {
-        id_clientId: {
-          id: id,
-          clientId: clientId,
-        },
-      },
-      data: {
-        fundedPayment: {
-          increment: amount,
-        },
-      },
-    });
-
     // update the client wallet to reduce the available amount
-    await this.prisma.user.update({
-      where: {
-        id: clientId,
-      },
-      data: {
-        wallet: {
-          update: {
-            available: {
-              decrement: amount,
+    const [updatedContract, _] = await this.prisma.$transaction([
+      this.prisma.contract.update({
+        where: {
+          id_clientId: {
+            id: id,
+            clientId: clientId,
+          },
+        },
+        data: {
+          fundedPayment: {
+            increment: amount,
+          },
+        },
+      }),
+      this.prisma.user.update({
+        where: {
+          id: clientId,
+        },
+        data: {
+          wallet: {
+            update: {
+              available: {
+                decrement: amount,
+              },
             },
           },
         },
-      },
-    });
+      }),
+    ]);
 
     return updatedContract;
   }

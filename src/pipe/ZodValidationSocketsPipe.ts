@@ -1,9 +1,6 @@
-import {
-  PipeTransform,
-  Injectable,
-  ArgumentMetadata,
-  BadRequestException,
-} from '@nestjs/common';
+import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
+
+import { WsException } from '@nestjs/websockets';
 
 import { ZodSchema } from 'zod';
 
@@ -15,7 +12,10 @@ export class ZodValidationPipe implements PipeTransform {
     try {
       this.schema.parse(value);
     } catch (e) {
-      throw new BadRequestException(e.errors);
+      throw new WsException({
+        status: 'error',
+        message: e.errors,
+      });
     }
     return value;
   }
