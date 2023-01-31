@@ -5,11 +5,9 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
-import { UsePipes } from '@nestjs/common';
 import { ConnectedSocket, MessageBody } from '@nestjs/websockets/decorators';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { AuthService } from 'src/module/auth/auth.service';
-import { ContractsService } from 'src/module/contracts/contracts.service';
 import {
   ClientToServerEvents,
   ServerToClientEvents,
@@ -17,12 +15,14 @@ import {
   InterServerEvents,
   JoinMessage,
   JOIN_STATUS,
+  SocketNamespace,
 } from './dto/types';
 import { JoinEventDto } from './dto/join-event.dto';
 import { MessageEventDto } from './dto/message-event.dto';
 import { ZodValidationPipe } from 'src/pipe/ZodValidationSocketsPipe';
 import { JoinEventSchema } from './validation/join-event.validation';
-import { UserJwtPayload } from 'src/module/auth/dto/user-jwt-payload.interface';
+import { MessageEventSchema } from './validation/message-event.validation';
+import { ChatRoomsService } from 'src/module/chat-rooms/chat-rooms.service';
 
 @WebSocketGateway({
   cors: {
@@ -41,10 +41,10 @@ export class ChatRoomsGateway implements OnGatewayConnection {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly contractService: ContractsService,
+    private readonly chatRoomsService: ChatRoomsService,
   ) {}
 
-  async handleConnection(client: Socket, ...args: any[]) {
+  async handleConnection(client: SocketNamespace, ...args: any[]) {
     // TODO: get the jwtToken from handshake.auth
     const jwtToken = client.handshake.headers.authorization;
     // if (!jwtToken) {
@@ -56,17 +56,19 @@ export class ChatRoomsGateway implements OnGatewayConnection {
       // Get the user Payload by the provided JWT token to check if valid
       const userPayload = await this.authService.getUserPayload(jwtToken);
 
-      // Get all the contracts ids (room ids) for this user
-      const contracts = await this.contractService.getAllContractIds(
+      // Get all the chatRooms ids for this user
+      const chatRooms = await this.chatRoomsService.getAllIds(
         userPayload.userId,
         userPayload.userType,
       );
 
-      // map the ids of contracts to a Set
-      const contractsSet: Set<String> = new Set();
-      contracts.forEach((contract) => contractsSet.add(contract.id));
+      // map the ids of chatRooms to a Set
+      const chatRoomsSet: Set<string> = new Set();
+      chatRooms.forEach(({ id }) => {
+        chatRoomsSet.add(id);
+      });
 
-      client.data.contracts = contractsSet;
+      client.data.rooms = chatRoomsSet;
       client.data.user = userPayload;
     } catch (err) {
       client.disconnect();
@@ -75,30 +77,40 @@ export class ChatRoomsGateway implements OnGatewayConnection {
 
   @SubscribeMessage('join')
   handleJoin(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: SocketNamespace,
     @MessageBody(new ZodValidationPipe(JoinEventSchema))
     joinEventDto: JoinEventDto,
   ) {
-    const userContracts: Set<String> = client.data.contracts;
+    const userRooms = client.data.rooms;
 
-    if (!userContracts.has(joinEventDto.contractId)) {
+    if (!userRooms.has(joinEventDto.contractId)) {
       throw new WsException('Denied access');
     }
 
-    const userData: UserJwtPayload = client.data.user;
-    const joinMessage: JoinMessage = {
+    client.join(joinEventDto.contractId);
+
+    const userData = client.data.user;
+
+    this.server.emit('join', {
       userId: userData.userId,
       userName: userData.username,
       join_status: JOIN_STATUS.JOINED,
-    };
-    this.server.emit('join', joinMessage);
+    });
   }
 
   @SubscribeMessage('message')
-  handleMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() messageEventDto: MessageEventDto,
+  async handleMessage(
+    @ConnectedSocket() client: SocketNamespace,
+    @MessageBody(new ZodValidationPipe(MessageEventSchema))
+    messageEventDto: MessageEventDto,
   ) {
-    this.server.emit('message', messageEventDto);
+    const userData = client.data.user;
+    const { contractId } = messageEventDto;
+    const messageData = {
+      ...messageEventDto,
+      ...userData,
+    };
+    this.server.to(contractId).emit('message', messageData);
+    await this.chatRoomsService.create(messageData);
   }
 }

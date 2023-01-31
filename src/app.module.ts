@@ -34,7 +34,8 @@ import { ThrottlerGuard } from '@nestjs/throttler/dist/throttler.guard';
 import { ContractsModule } from './module/contracts/contracts.module';
 import { MilestonesModule } from './module/milestones/milestones.module';
 import { ChatRoomsGateway } from './gateway/chat-rooms/chat-rooms.gateway';
-import { ChatRoomsModule } from './gateway/chat-rooms/chat-rooms.module';
+import { ChatRoomsSocketsModule } from './gateway/chat-rooms/chat-rooms.module';
+import { ChatRoomsModule } from './module/chat-rooms/chat-rooms.module';
 
 @Module({
   imports: [
@@ -71,6 +72,9 @@ import { ChatRoomsModule } from './gateway/chat-rooms/chat-rooms.module';
     ContractsModule,
     MilestonesModule,
     ChatRoomsModule,
+
+    // sockets modules
+    ChatRoomsSocketsModule,
   ],
   controllers: [AppController],
   providers: [

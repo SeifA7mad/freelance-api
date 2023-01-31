@@ -11,7 +11,6 @@ import {
 } from 'src/util/global-types';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { AddFundsDto } from './dto/add-funds.dto';
-import { UserType } from '../auth/dto/user-jwt-payload.interface';
 
 @Injectable()
 export class ContractsService {
@@ -91,15 +90,6 @@ export class ContractsService {
       include: {
         job: true,
         project: true,
-      },
-    });
-  }
-
-  getAllContractIds(userId: string, userType: UserType) {
-    return this.prisma.contract.findMany({
-      where: getUserFilterBasedOnType(userId, userType),
-      select: {
-        id: true,
       },
     });
   }

@@ -11,7 +11,7 @@ export class ZodValidationPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
     try {
       this.schema.parse(value);
-    } catch (e) {
+    } catch (e: any) {
       throw new WsException({
         status: 'error',
         message: e.errors,
