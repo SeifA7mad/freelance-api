@@ -336,7 +336,7 @@ model Milestone {
 }
 
 model ChatMessage {
-  id         String  @id @default(uuid())
+  id         Int     @id @default(autoincrement())
   text       String?
   attachment String?
 
@@ -345,7 +345,7 @@ model ChatMessage {
   contractId String
   contract   Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
+  createdAt DateTime @unique @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([contractId])

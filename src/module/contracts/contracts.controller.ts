@@ -11,6 +11,8 @@ import {
   Req,
   UseInterceptors,
   CacheInterceptor,
+  Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ClientAuthGuard } from 'src/guard/client-auth.guard';
@@ -24,6 +26,7 @@ import { CreateContractDto } from './dto/create-contract.dto';
 import { CreateContractSchema } from './validation/create-contract.validation';
 import { AddFundsDto } from './dto/add-funds.dto';
 import { AddFundsSchema } from './validation/add-funds.validation';
+import { FindAllQueryParamsDto } from './dto/findAll-contracts.dto';
 @ApiTags('Contract')
 @UseInterceptors(CacheInterceptor)
 @Controller('contracts')
@@ -44,8 +47,17 @@ export class ContractsController {
   @Get()
   @ApiBearerAuth()
   @UseGuards(UserExceptAdminAuthGuard)
-  findAll(@Req() req: JwtUserRequest) {
-    return this.contractsService.findAll(req.user);
+  findAll(
+    @Req() req: JwtUserRequest,
+    @Query(
+      new ValidationPipe({
+        transform: true,
+        transformOptions: { enableImplicitConversion: true },
+      }),
+    )
+    query: FindAllQueryParamsDto,
+  ) {
+    return this.contractsService.findAll(req.user, query);
   }
 
   @Get(':id')

@@ -7,10 +7,12 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   UserJwtRequestPayload,
+  getUserContractFilterBasedOnType,
   getUserFilterBasedOnType,
 } from 'src/util/global-types';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { AddFundsDto } from './dto/add-funds.dto';
+import { FindAllQueryParamsDto } from './dto/findAll-contracts.dto';
 
 @Injectable()
 export class ContractsService {
@@ -84,21 +86,33 @@ export class ContractsService {
     });
   }
 
-  findAll(user: UserJwtRequestPayload) {
-    return this.prisma.contract.findMany({
-      where: getUserFilterBasedOnType(user.id, user.userType),
-      include: {
-        job: true,
-        project: true,
-      },
-    });
+  async findAll(user: UserJwtRequestPayload, query: FindAllQueryParamsDto) {
+    const { limit, page } = query;
+
+    const numberToSkip = limit * (page - 1) || undefined;
+
+    const [totalCount, data] = await this.prisma.$transaction([
+      this.prisma.contract.count({
+        where: getUserFilterBasedOnType(user.id, user.userType),
+      }),
+      this.prisma.contract.findMany({
+        take: limit,
+        skip: numberToSkip,
+        where: getUserFilterBasedOnType(user.id, user.userType),
+        include: {
+          job: true,
+          project: true,
+        },
+      }),
+    ]);
+
+    return { totalCount, data };
   }
 
   findOne(id: string, user: UserJwtRequestPayload) {
-    return this.prisma.contract.findMany({
+    return this.prisma.contract.findUnique({
       where: {
-        id: id,
-        ...getUserFilterBasedOnType(user.id, user.userType),
+        ...getUserContractFilterBasedOnType(id, user.id, user.userType),
       },
       include: {
         job: true,

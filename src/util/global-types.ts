@@ -37,3 +37,13 @@ export const getUserFilterBasedOnType = (
     ? { clientId: userId }
     : { freelancerId: userId };
 };
+
+export const getUserContractFilterBasedOnType = (
+  contractId: string,
+  userId: string,
+  userType: UserType,
+) => {
+  return userType === UserType.CLIENT
+    ? { id_clientId: { id: contractId, clientId: userId } }
+    : { id_freelancerId: { id: contractId, freelancerId: userId } };
+};
